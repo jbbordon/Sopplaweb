@@ -14,6 +14,7 @@ app.use(webpackDevMiddleware(webpack(webpackConfig)));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use('/api',api);
+app.use(express.static(__dirname + '/../'));
 
 // Main page routing
 app.get('/', function(req, res) {

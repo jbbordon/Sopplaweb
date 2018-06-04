@@ -1,15 +1,14 @@
+// import React & ReactDOM
 import React from 'react';
 import { render } from 'react-dom';
 
+// css imports
 import './style/main.css';
 
-const App = () => {
-  return <h1>
-    Hello World!
-  </h1>
-}
+// import App
+import App from './components/App';
 
 render(
   <App/>,
-  document.getElementById('app')
+  document.getElementById('root')
 )
