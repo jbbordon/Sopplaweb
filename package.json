@@ -27,10 +27,14 @@
   },
   "dependencies": {
     "body-parser": "^1.18.2",
+    "bootstrap": "^4.1.1",
     "cesium": "^1.45.0",
     "express": "^4.16.3",
+    "jquery": "^3.3.1",
     "mongoose": "^5.1.0",
+    "popper.js": "^1.14.3",
     "react": "^16.3.2",
-    "react-dom": "^16.3.2"
+    "react-dom": "^16.3.2",
+    "react-fontawesome": "^1.6.1"
   }
 }

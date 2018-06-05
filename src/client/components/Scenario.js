@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Fontawesome from 'react-fontawesome';
 import '../style/scenario.css';
 
 class Scenario extends Component {
@@ -13,6 +14,7 @@ class Scenario extends Component {
       <div className='scenario'>
         <h4>
           Scenario : { this.state.title }
+          <span><Fontawesome name='bars'/></span>
         </h4>
         <form className='scenarioForm'>
           <div className='form-row'>
