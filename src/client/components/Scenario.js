@@ -1,20 +1,46 @@
+/* Modules import */
 import React, { Component } from 'react';
-import Fontawesome from 'react-fontawesome';
+/* Bootstrap components import */
+import { DropdownButton, MenuItem } from 'react-bootstrap';
+/* Styles import */
 import '../style/scenario.css';
 
 class Scenario extends Component {
   constructor () {
     super();
+
+    this.handleShow = this.handleShow.bind(this);
+    this.handleClose = this.handleClose.bind(this);
+
     this.state = {
+      show  : "false",
       title : "default"
     }
   }
+
+  /* Close the modal */
+  handleClose() {
+    this.setState({ show: false });
+  }
+
+  /* Show a modal */
+  handleShow() {
+    this.setState({ show: true });
+  }
+
   render () {
     return (
       <div className='scenario'>
         <h4>
-          Scenario : { this.state.title }
-          <span><Fontawesome name='bars'/></span>
+          Scenario :
+          <span>
+            <DropdownButton bsStyle="default" title= { this.state.title } id="dropdown-no-caret">
+              <MenuItem eventKey="1">New</MenuItem>
+              <MenuItem eventKey="2">Load</MenuItem>
+              <MenuItem eventKey="3">Save</MenuItem>
+              <MenuItem eventKey="4">Delete</MenuItem>
+            </DropdownButton>
+          </span>
         </h4>
         <form className='scenarioForm'>
           <div className='form-row'>

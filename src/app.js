@@ -13,8 +13,10 @@ const app = express();
 app.use(webpackDevMiddleware(webpack(webpackConfig)));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+// routes
 app.use('/api',api);
-app.use(express.static(__dirname + '/../'));
+app.use(express.static(__dirname + 'public'));
 
 // Main page routing
 app.get('/', function(req, res) {
