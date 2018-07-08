@@ -7,7 +7,7 @@ const Scenario = require ('../models/scenario');
 
 /* Find an scenario in the DB */
 function getScenario (req, res) {
-	console.log ('getScenario');
+	console.log ('GET /scenario/:scenarioID');
 	Scenario.findById(req.params.scenarioID, function(err, scenario) {
 	    if (err) {
 	    	res.status(500).send({ message : 'Error while retrieving the Scenario from the DB'})
@@ -30,7 +30,7 @@ function getScenarios (req, res) {
 	    }else {
 	    	if(!scenarios) {
 	    		res.status(404).send({ message : 'There are no scenarios in the DB'});
-	    	} else {	
+	    	} else {
 	    		res.status(200).jsonp(scenarios);
 	    	}
 	    }
@@ -49,7 +49,7 @@ function getScenarioTargets (req, res) {
 	    	} else {
 				res.status(200).jsonp(targets);
 	    	}
-	    }		    	
+	    }
 	});
 };
 
@@ -65,7 +65,7 @@ function getScenarioUAVs (req, res) {
 	    	} else {
 				res.status(200).jsonp(uavs);
 	    	}
-	   	}		    	
+	   	}
 	});
 };
 
@@ -81,7 +81,7 @@ function getScenarioEnvironment (req, res) {
 	    	} else {
 				res.status(200).jsonp(environment);
 	    	}
-	   	}		    	
+	   	}
 	});
 };
 
@@ -97,7 +97,7 @@ function getScenarioRequest (req, res) {
 	    	} else {
 				res.status(200).jsonp(request);
 	    	}
-	   	}		    	
+	   	}
 	});
 };
 
@@ -129,11 +129,11 @@ function addScenarioTarget (req, res) {
 	console.log ('POST /scenario/target');
 	//read input data from http body request
 	Scenario.findOneAndUpdate (
-		{'_id' : req.body.scenarioID}, 
+		{'_id' : req.body.scenarioID},
 		{ $push : {
 			'targets': req.body.targetID}
 		},
-		{new : true},							
+		{new : true},
 		function (err, scenario) {
 			if (err) {
 				res.status(500).send({ message : 'Error while adding the target to the Scenario in the DB'});
@@ -145,7 +145,7 @@ function addScenarioTarget (req, res) {
 				}
 			}
 		}
-	);	
+	);
 };
 
 /* Add an existing uav to a given Scenario in the DB */
@@ -153,13 +153,13 @@ function addScenarioUAV (req, res) {
 	console.log ('POST /scenario/uav');
 	//read input data from http body request
 	Scenario.findOneAndUpdate (
-		{'_id' : req.body.scenarioID}, 
+		{'_id' : req.body.scenarioID},
 		{ $push : {
 			'uavs': req.body.uavID}
 		},
-		{new : true},							
+		{new : true},
 		function (err, scenario) {
-			if (err){ 
+			if (err){
 				res.status(500).send({ message : 'Error while adding the uav to the Scenario in the DB'});
 			} else {
 				if (!scenario) {
@@ -169,7 +169,7 @@ function addScenarioUAV (req, res) {
 				}
 			}
 		}
-	);	
+	);
 };
 
 /* Add an environment to a given Scenario in the DB */
@@ -177,9 +177,9 @@ function addScenarioEnvironment (req, res) {
 	console.log ('POST /scenario/environment');
 	//read input data from http body request
 	Scenario.findOneAndUpdate (
-		{'_id' : req.body.scenarioID}, 
+		{'_id' : req.body.scenarioID},
 		{'environment': req.body.environmentID},
-		{new : true},							
+		{new : true},
 		function (err, scenario) {
 			if (err) {
 				res.status(500).send({ message : 'Error while saving the environment to the Scenario in the DB'});
@@ -191,7 +191,7 @@ function addScenarioEnvironment (req, res) {
 				}
 			}
 		}
-	);	
+	);
 };
 
 /* Add a request to a given Scenario in the DB */
@@ -199,9 +199,9 @@ function addScenarioRequest (req, res) {
 	console.log ('POST /scenario/request');
 	//read input data from http body request
 	Scenario.findOneAndUpdate (
-		{'_id' : req.body.scenarioID}, 
+		{'_id' : req.body.scenarioID},
 		{'request': req.body.requestID},
-		{new : true},							
+		{new : true},
 		function (err, scenario) {
 			if (err) {
 				res.status(500).send({ message : 'Error while saving the request to the Scenario in the DB'});
@@ -213,7 +213,7 @@ function addScenarioRequest (req, res) {
 				}
 			}
 		}
-	);	
+	);
 };
 
 /* Update a given scenario from the DB */
@@ -221,18 +221,18 @@ function updateScenario (req, res) {
 	console.log ('PUT /scenario');
 	// seach the DB for the Scenario and update it
 	Scenario.findOneAndUpdate (
-		{'_id' : req.body.id}, 
+		{'_id' : req.body._id},
 		{ $set : {
 			'name' : req.body.name,
-			'zone.latitude': req.body.latitude,
-			'zone.longitude': req.body.longitude,
-			'zone.x_width': req.body.x_width,
-			'zone.y_height': req.body.y_height,
-			'zone.area_bearing': req.body.area_bearing,
-			'zone.x_cells': req.body.x_cells,
-			'zone.y_cells': req.body.y_cells}
+			'zone.latitude': req.body.zone.latitude,
+			'zone.longitude': req.body.zone.longitude,
+			'zone.x_width': req.body.zone.x_width,
+			'zone.y_height': req.body.zone.y_height,
+			'zone.area_bearing': req.body.zone.area_bearing,
+			'zone.x_cells': req.body.zone.x_cells,
+			'zone.y_cells': req.body.zone.y_cells}
 		},
-		{new : true},							
+		{new : true},
 		function (err, scenario) {
 			if (err) {
 				res.status(500).send({ message : 'Error while updating the Scenario in the DB'});
@@ -240,7 +240,7 @@ function updateScenario (req, res) {
 				if (!scenario) {
 					res.status(404).send({ message : 'Scenario does not exist in the DB'});
 				} else {
-					res.status(200).send ({Scenario : scenario});
+					res.status(200).send(scenario);
 				}
 			}
 		}
@@ -270,7 +270,7 @@ function deleteScenarioTarget (req, res) {
 	// remove the target from the given Scenario
 	Scenario.findOneAndUpdate (
 		{ '_id' : req.params.scenarioID},
-		{ $pull : 
+		{ $pull :
 			{ targets : req.params.targetID }
 		},
 		{new : true},
@@ -294,7 +294,7 @@ function deleteScenarioUAV (req, res) {
 	// remove the uav from the given Scenario
 	Scenario.findOneAndUpdate (
 		{ '_id' : req.params.scenarioID},
-		{ $pull : 
+		{ $pull :
 			{ uavs: req.params.uavID }
 		},
 		{new : true},
@@ -317,9 +317,9 @@ function deleteScenarioEnvironment (req, res) {
 	console.log ('DELETE /scenario/:scenarioID/environment');
 	//read input data from http body request
 	Scenario.findOneAndUpdate (
-		{'_id' : req.params.scenarioID}, 
+		{'_id' : req.params.scenarioID},
 		{'environment': null},
-		{new : true},							
+		{new : true},
 		function (err, scenario) {
 			if (err) {
 				res.status(500).send({ message : 'Error while deleting the environment from the Scenario in the DB'});
@@ -331,7 +331,7 @@ function deleteScenarioEnvironment (req, res) {
 				}
 			}
 		}
-	);	
+	);
 };
 
 /* Add a request to a given Scenario in the DB */
@@ -339,9 +339,9 @@ function deleteScenarioRequest (req, res) {
 	console.log ('DELETE /scenario/:scenarioID/request');
 	//read input data from http body request
 	Scenario.findOneAndUpdate (
-		{'_id' : req.params.scenarioID}, 
+		{'_id' : req.params.scenarioID},
 		{'request': null},
-		{new : true},							
+		{new : true},
 		function (err, scenario) {
 			if (err) {
 				res.status(500).send({ message : 'Error while deleting the request from the Scenario in the DB'});
@@ -353,18 +353,18 @@ function deleteScenarioRequest (req, res) {
 				}
 			}
 		}
-	);	
+	);
 };
 
 module.exports = {
-	getScenario,	
+	getScenario,
 	getScenarios,
 	getScenarioTargets,
 	getScenarioUAVs,
 	getScenarioEnvironment,
 	getScenarioRequest,
 	addScenario,
-	addScenarioTarget,		
+	addScenarioTarget,
 	addScenarioUAV,
 	addScenarioEnvironment,
 	addScenarioRequest,
