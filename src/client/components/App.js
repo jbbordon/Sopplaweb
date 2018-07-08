@@ -45,10 +45,10 @@ class App extends Component {
   }
 
 /* Create a new Scenario */
-  addScenario (input) {
+  addScenario (scenario) {
     fetch('/api/scenario', {
       method: 'POST',
-      body: JSON.stringify(input),
+      body: JSON.stringify(scenario),
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -61,35 +61,16 @@ class App extends Component {
       res.json()
       .then(data => {
         //update the scenario data
-        this.setState({ scenario : data.Scenario});
-      })
-    })
-    .catch(err => console.log(err));
-  }
-
-  /* Load an existing Scenario */
-  loadScenario (input) {
-    // get the scenario list fron the server
-    fetch('/api/scenario/' + input.id)
-    .then(res => {
-      if (!res.ok) {
-        throw error (res.statusText);
-      }
-      res.json()
-      .then(data => {
-        console.log(data);
-        //update the scenario data
-        this.setState({ scenario: data});
-        console.log(this.state.scenario);
+        this.setState({scenario : data});
+        alert(`${data.name} created`);
       })
     })
     .catch(err => console.log(err));
   }
 
   /* Delete an existing Scenario */
-  deleteScenario (input) {
-    console.log(input);
-    fetch('/api/scenario/' + input.id, {
+  deleteScenario (scenario) {
+    fetch('/api/scenario/' + scenario._id, {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
@@ -100,6 +81,26 @@ class App extends Component {
       if (!res.ok) {
         throw error (res.statusText);
       }
+      alert(`${scenario.name} deleted`);
+    })
+    .catch(err => console.log(err));
+  }
+
+  /* Load an existing Scenario */
+  loadScenario (scenario) {
+    // get the scenario list fron the server
+    fetch('/api/scenario/' + scenario._id)
+    .then(res => {
+      if (!res.ok) {
+        throw error (res.statusText);
+      }
+      res.json()
+      .then(data => {
+        //update the scenario data
+        this.setState({scenario : data});
+        console.log(this.state.scenario)
+        alert(`${scenario.name} loaded`);
+      })
     })
     .catch(err => console.log(err));
   }
@@ -130,6 +131,7 @@ class App extends Component {
     // build the data to save
     const scenario = this.state.scenario;
     scenario.zone = inputZone;
+    console.log(scenario);
     //send the server the PUT request with the new data
     fetch('/api/scenario', {
       method: 'PUT',
@@ -160,9 +162,9 @@ class App extends Component {
         <div id='scenario'>
           <ScenarioMenu
             name={this.state.scenario.name}
-            onNew={(input) => this.addScenario(input)}
-            onLoad={(input) => this.loadScenario(input)}
-            onDelete={(input) => this.deleteScenario(input)}
+            onNew={(scenario) => this.addScenario(scenario)}
+            onLoad={(scenario) => this.loadScenario(scenario)}
+            onDelete={(scenario) => this.deleteScenario(scenario)}
             onSave={() => this.saveScenario()}
           />
           <ScenarioForm

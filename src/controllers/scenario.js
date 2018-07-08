@@ -105,21 +105,14 @@ function getScenarioRequest (req, res) {
 function addScenario (req, res) {
 	console.log ('POST /scenario');
 	//read input data from http body request
-	let myScenario = new Scenario();
-	myScenario.name              = req.body.name;
-	myScenario.zone.latitude     = req.body.latitude;
-	myScenario.zone.longitude    = req.body.longitude;
-	myScenario.zone.x_width      = req.body.x_width;
-	myScenario.zone.y_height     = req.body.y_height;
-	myScenario.zone.area_bearing = req.body.area_bearing;
-	myScenario.zone.x_cells      = req.body.x_cells;
-	myScenario.zone.y_cells      = req.body.y_cells;
+	const myScenario = new Scenario();
+	myScenario.name = req.body.name;
 	// ad a new Scenario in the DB
 	myScenario.save(function (err, scenarioStored) {
 		if (err) {
 			res.status(500).send({ message : 'Error while saving the Scenario in the DB'})
 		} else {
-			res.status(200).send ({Scenario : scenarioStored});
+			res.status(200).send(scenarioStored);
 		}
 	});
 };

@@ -10,7 +10,8 @@ class ModalLoad extends Component {
     super(props);
 
     this.state = {
-      id : ""
+      _id : "",
+      name : ""
     }
 
     this.handleSelect = this.handleSelect.bind(this);
@@ -22,7 +23,7 @@ class ModalLoad extends Component {
   }
 
   handleSelect (item) {
-    this.setState({ id : item._id });
+    this.setState(item);
   }
 
   render () {

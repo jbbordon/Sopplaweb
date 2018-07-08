@@ -17,7 +17,6 @@ class ScenarioMenu extends Component {
     super(props);
     // internal state
     this.state = {
-      name : this.props.name,
       list : [],
       showNew : false,
       showLoad : false,
@@ -52,7 +51,6 @@ class ScenarioMenu extends Component {
   /* Handle new */
   handleNew (scenario) {
     this.props.onNew(scenario);
-    this.setState({name : scenario.name});
     this.setState({ showNew : false });
   }
 
@@ -101,7 +99,7 @@ class ScenarioMenu extends Component {
       <div className="scenarioMenu">
         <h4>Scenario:
           <span>
-            <DropdownButton id="scenarioButton" bsStyle="secondary" bsSize="small" title= { this.state.name }>
+            <DropdownButton id="scenarioButton" bsStyle="secondary" bsSize="small" title={this.props.name}>
               <MenuItem eventKey={1} onSelect={this.handleScenarioButton}>New</MenuItem>
               <MenuItem eventKey={2} onSelect={this.handleScenarioButton}>Load</MenuItem>
               <MenuItem eventKey={3} onSelect={this.handleScenarioButton}>Save</MenuItem>
