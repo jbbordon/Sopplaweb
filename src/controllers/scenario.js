@@ -2,22 +2,25 @@
 
 //File: controllers/scenario.js
 const Scenario = require ('../models/scenario');
+const UAV  = require ('../models/uav');
 
 /* Scenario methods */
 
 /* Find an scenario in the DB */
 function getScenario (req, res) {
 	console.log ('GET /scenario/:scenarioID');
-	Scenario.findById(req.params.scenarioID, function(err, scenario) {
-	    if (err) {
-	    	res.status(500).send({ message : 'Error while retrieving the Scenario from the DB'})
+	Scenario.findById(req.params.scenarioID).
+	populate('uavs targets').
+	exec(function(err, scenario) {
+		if (err) {
+	  	res.status(500).send({ message : 'Error while retrieving the Scenario from the DB'})
+	  } else {
+	    if (!scenario) {
+	    	res.status(404).send({ message : 'Scenario does not exist in the DB'});
 	    } else {
-	    	if (!scenario) {
-	    		res.status(404).send({ message : 'Scenario does not exist in the DB'});
-	    	} else {
-	    		res.status(200).jsonp(scenario);
-	    	}
+	    	res.status(200).jsonp(scenario);
 	    }
+	  }
 	});
 };
 
@@ -40,30 +43,34 @@ function getScenarios (req, res) {
 /* Return a list of targets defined in a given Scenario*/
 function getScenarioTargets (req, res) {
 	console.log ('GET /scenario/targets/:scenarioID');
-	Scenario.findOne({"_id": req.params.scenarioID}, 'targets', function(err, targets) {
+	Scenario.findOne({"_id": req.params.scenarioID}).
+	populate('targets', 'name _id').
+	exec(function(err, list) {
 	    if(err) {
-	    	res.status(500).send({ message : 'Error while retrieving the scenario target list from the DB'});
+	    	res.status(500).send({ message : 'Error while retrieving the scenario uav list from the DB'});
 	    } else {
-	    	if (!targets) {
-	    		res.status(404).send({ message : 'Error there are no targets defined for the given scenario'});
+	    	if (!list) {
+	    		res.status(404).send({ message : 'Error there is no uav defined for the given scenario'});
 	    	} else {
-				res.status(200).jsonp(targets);
+				res.status(200).jsonp(list.targets);
 	    	}
-	    }
+	   	}
 	});
 };
 
 /* Return the list of UAVs of the Scenario */
 function getScenarioUAVs (req, res) {
 	console.log ('GET /scenario/uavs/:scenarioID');
-	Scenario.findOne({"_id": req.params.scenarioID}, 'uavs', function(err, uavs) {
+	Scenario.findOne({"_id": req.params.scenarioID}).
+	populate('uavs').
+	exec(function(err, list) {
 	    if(err) {
 	    	res.status(500).send({ message : 'Error while retrieving the scenario uav list from the DB'});
 	    } else {
-	    	if (!uavs) {
-	    		res.status(404).send({ message : 'Error there are no uavs defined for the given scenario'});
+	    	if (!list) {
+	    		res.status(404).send({ message : 'Error there is no uav defined for the given scenario'});
 	    	} else {
-				res.status(200).jsonp(uavs);
+				res.status(200).jsonp(list.uavs);
 	    	}
 	   	}
 	});
@@ -126,8 +133,9 @@ function addScenarioTarget (req, res) {
 		{ $push : {
 			'targets': req.body.targetID}
 		},
-		{new : true},
-		function (err, scenario) {
+		{new : true}).
+		populate('targets').
+		exec(function (err, scenario) {
 			if (err) {
 				res.status(500).send({ message : 'Error while adding the target to the Scenario in the DB'});
 			} else {
@@ -148,17 +156,18 @@ function addScenarioUAV (req, res) {
 	Scenario.findOneAndUpdate (
 		{'_id' : req.body.scenarioID},
 		{ $push : {
-			'uavs': req.body.uavID}
+			'uavs': req.body.uav}
 		},
-		{new : true},
-		function (err, scenario) {
+		{new : true}).
+		populate('uavs').
+		exec(function (err, scenario) {
 			if (err){
 				res.status(500).send({ message : 'Error while adding the uav to the Scenario in the DB'});
 			} else {
 				if (!scenario) {
 					res.status(404).send({ message : 'Scenario does not exist in the DB'});
 				} else {
-					res.status(200).send ({Scenario : scenario});
+					res.status(200).send (scenario.uavs);
 				}
 			}
 		}
@@ -217,13 +226,13 @@ function updateScenario (req, res) {
 		{'_id' : req.body._id},
 		{ $set : {
 			'name' : req.body.name,
-			'zone.latitude': req.body.zone.latitude,
-			'zone.longitude': req.body.zone.longitude,
-			'zone.x_width': req.body.zone.x_width,
-			'zone.y_height': req.body.zone.y_height,
-			'zone.area_bearing': req.body.zone.area_bearing,
-			'zone.x_cells': req.body.zone.x_cells,
-			'zone.y_cells': req.body.zone.y_cells}
+			'zone.latitude': req.body.latitude,
+			'zone.longitude': req.body.longitude,
+			'zone.xWidth': req.body.xWidth,
+			'zone.yHeight': req.body.yHeight,
+			'zone.areaBearing': req.body.areaBearing,
+			'zone.xCells': req.body.xCells,
+			'zone.yCells': req.body.yCells}
 		},
 		{new : true},
 		function (err, scenario) {
@@ -266,8 +275,9 @@ function deleteScenarioTarget (req, res) {
 		{ $pull :
 			{ targets : req.params.targetID }
 		},
-		{new : true},
-		function (err, scenario) {
+		{new : true}).
+		populate('targets').
+		exec(function (err, scenario) {
 			if (err) {
 				res.status(500).send({ message : 'Error while deleting the target from the scenario'});
 			} else {
@@ -290,15 +300,16 @@ function deleteScenarioUAV (req, res) {
 		{ $pull :
 			{ uavs: req.params.uavID }
 		},
-		{new : true},
-		function (err, scenario) {
+		{new : true}).
+		populate('uavs').
+		exec(function (err, scenario) {
 			if (err) {
 				res.status(500).send({ message : 'Error while deleting the uav from the scenario'});
 			} else {
 				if (!scenario) {
 					res.status(404).send({ message : 'Scenario does not exist in the DB'});
 				} else {
-					res.status(200).send ({Scenario : scenario});
+					res.status(200).send (scenario.uavs);
 				}
 			}
 		}

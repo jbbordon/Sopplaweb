@@ -1,12 +1,19 @@
 /* Modules import */
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-/* Styles import */
-import '../style/app.css';
 /* Components import */
-import ScenarioMenu from './scenario/scenario-menu.js'
+import SopplaNav from './navbar/soppla-bar.js'
+import ScenarioHeader from './scenario/scenario-header.js'
 import ScenarioForm from './scenario/scenario-form.js'
 import ScenarioTabs from './scenario/scenario-tabs.js'
+/* Styles import */
+import 'cesium/Widgets/widgets.css';
+import '../style/app.css';
+/* Cesium import */
+import Cesium from 'cesium/Cesium';
+
+// cesium instance
+var viewer = new Cesium.Viewer('cesiumContainer');
 
 class App extends Component {
 
@@ -18,159 +25,132 @@ class App extends Component {
       scenario : {
         _id : "",
         name : "Default",
-        zone   : {
-          latitude : 0.0,
-          longitude : 0.0,
-          x_width : 0,
-          y_height: 0,
-          area_bearing: 0,
-          x_cells: 0,
-          y_cells: 0,
+        zone : {
+          latitude : "",
+          longitude : "",
+          xWidth : "",
+          yHeight: "",
+          areaBearing: "",
+          xCells: "",
+          yCells: "",
+        },
+        uavs : [],
+        targets : [],
+        environment : {
+          _id : ""
         }
       }
     }
     //binding of methods
-    this.addScenario = this.addScenario.bind(this);
-    this.loadScenario = this.loadScenario.bind(this);
-    this.deleteScenario = this.deleteScenario.bind(this);
-    this.saveScenario = this.saveScenario.bind(this);
-    this.saveZone = this.saveZone.bind(this);
+    this.resetScenario = this.resetScenario.bind(this);
+    this.handleScenarioMenu = this.handleScenarioMenu.bind(this);
+    this.handleUavMenu = this.handleUavMenu.bind(this);
+    this.handleTargetMenu = this.handleTargetMenu.bind(this);
+    this.handleEnvMenu = this.handleEnvMenu.bind(this);
+    this.handleRequestMenu = this.handleRequestMenu.bind(this);
   }
 
-  componentDidMount() {
+  /* reset current scenario to default data */
+  resetScenario () {
     this.setState({
       scenario : {
-        name : "Default"}
+        _id : "",
+        name : "Default",
+          zone : {
+            latitude : "",
+            longitude : "",
+            xWidth : "",
+            yHeight: "",
+            areaBearing: "",
+            xCells: "",
+            yCells: "",
+          },
+        uavs : [],
+        targets : [],
+        environment : {
+          _id : ""
+        }
+      }
     });
   }
 
-/* Create a new Scenario */
-  addScenario (scenario) {
-    fetch('/api/scenario', {
-      method: 'POST',
-      body: JSON.stringify(scenario),
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(res => {
-      if (!res.ok) {
-        throw error (res.statusText);
-      }
-      res.json()
-      .then(data => {
-        //update the scenario data
-        this.setState({scenario : data});
-        alert(`${data.name} created`);
-      })
-    })
-    .catch(err => console.log(err));
+  /* Handles Scenario menu */
+  handleScenarioMenu (eventKey, param) {
+    // new, load, save update scenario data
+    switch (eventKey) {
+      case 'new':
+        this.setState({scenario : param});
+        break;
+      case 'load':
+        this.setState({scenario : param});
+        break;
+      case 'save':
+        this.setState({scenario : param});
+        break;
+      case 'delete':
+        // check if scenario deleted is the current one
+        if (this.state.scenario._id == param._id) {
+          // reset scenario data
+          this.resetScenario();
+        }
+        break;
+      default:
+        break;
+    }
   }
 
-  /* Delete an existing Scenario */
-  deleteScenario (scenario) {
-    fetch('/api/scenario/' + scenario._id, {
-      method: 'DELETE',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(res => {
-      if (!res.ok) {
-        throw error (res.statusText);
-      }
-      alert(`${scenario.name} deleted`);
-    })
-    .catch(err => console.log(err));
+  /* Handles UAVs menu */
+  handleUavMenu (eventKey, param) {
+    // add & remove update scenario UAVs
+    let scenario = Object.assign({}, this.state.scenario);
+    scenario.uavs = param;
+    this.setState({scenario});
   }
 
-  /* Load an existing Scenario */
-  loadScenario (scenario) {
-    // get the scenario list fron the server
-    fetch('/api/scenario/' + scenario._id)
-    .then(res => {
-      if (!res.ok) {
-        throw error (res.statusText);
-      }
-      res.json()
-      .then(data => {
-        //update the scenario data
-        this.setState({scenario : data});
-        console.log(this.state.scenario)
-        alert(`${scenario.name} loaded`);
-      })
-    })
-    .catch(err => console.log(err));
+  /* Handles Target menu */
+  handleTargetMenu (eventKey, param) {
+    // add, remove & delete update scenario targets
+    let scenario = Object.assign({}, this.state.scenario);
+    scenario.targets = param;
+    this.setState({scenario});
   }
 
-  /* Save current Scenario */
-  saveScenario () {
-    fetch('/api/scenario', {
-      method: 'PUT',
-      body: JSON.stringify(this.state.scenario),
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(res => {
-      if (!res.ok) {
-        throw error (res.statusText);
-      }
-      res.json()})
-    .then(data => {
-      this.setState({ scenario : data });
-    })
-    .catch(err => console.error(err));
+  /* Handles Environment menu */
+  handleEnvMenu (eventKey, env) {
   }
 
-  /* Handle the inputs from ScenarioForm for setting up the scenario zone*/
-  saveZone (inputZone) {
-    // build the data to save
-    const scenario = this.state.scenario;
-    scenario.zone = inputZone;
-    console.log(scenario);
-    //send the server the PUT request with the new data
-    fetch('/api/scenario', {
-      method: 'PUT',
-      body: JSON.stringify(scenario),
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(res => {
-      if (!res.ok) {
-        throw error (res.statusText);
-      }
-      res.json()
-      .then(data => {
-        // if data is updated ok then setState to force render of components
-        this.setState(data);
-      })
-    })
-    .catch(err => console.error(err));
+  /* Handles Request menu */
+  handleRequestMenu (eventKey, request) {
   }
 
   /* Component render method */
   render () {
     return (
       <div className='app'>
-        <h3> SopplaWeb </h3>
-        <div id='scenario'>
-          <ScenarioMenu
-            name={this.state.scenario.name}
-            onNew={(scenario) => this.addScenario(scenario)}
-            onLoad={(scenario) => this.loadScenario(scenario)}
-            onDelete={(scenario) => this.deleteScenario(scenario)}
-            onSave={() => this.saveScenario()}
+        <div className='sopplaNav'>
+          <SopplaNav
+            scenarioID={this.state.scenario._id}
+            onScenarioAction={(eventKey, param) => this.handleScenarioMenu(eventKey, param)}
+            onUavAction={(eventKey, param) => this.handleUavMenu(eventKey, param)}
+            onTargetAction={(target) => this.handleTargetMenu(target)}
+            onEnvAction={(env) => this.handleEnvMenu(env)}
+            onRequestAction={(request) => this.handleRequestMenu(request)}
+          />
+        </div>
+        <div className='scenario'>
+          <ScenarioHeader
+            scenario={this.state.scenario.name}
           />
           <ScenarioForm
-            onSave={(inputZone) => this.saveZone(inputZone)}
+            name={this.state.scenario.name}
+            id={this.state.scenario._id}
+            zone={this.state.scenario.zone}
+            onSave={(scenario) => this.handleScenarioMenu('save', scenario)}
           />
           <ScenarioTabs
+            scenarioID={this.state.scenario._id}
+            scenarioUAVs={this.state.scenario.uavs}
+            scenarioTargets={this.state.scenario.targets}
           />
         </div>
       </div>

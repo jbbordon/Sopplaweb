@@ -45,7 +45,7 @@ api.delete('/targets/:targetID/motionModel', TargetCtrl.deleteTargetMotionModel)
 api.delete('/targets/:targetID/belief/:layerID', TargetCtrl.deleteTargetBelief);
 
 // UAVs Routing
-api.get('/uavs/types', UAVCtrl.getUAVTypes);	
+api.get('/uavs/types', UAVCtrl.getUAVTypes);
 api.get('/uavs/models', UAVCtrl.getUAVModels);
 api.get('/uavs/sensors', UAVCtrl.getUAVSensors);
 api.get('/uavs', UAVCtrl.getUAVs);
@@ -58,6 +58,7 @@ api.delete('/uavs/:uavID', UAVCtrl.deleteUAV);
 api.delete('/uavs/:uavID/sensor/:sensorPos', UAVCtrl.deleteUAVSensor);
 
 // Environment Routing
+api.get('/environment', EnvCtrl.getEnvs);
 api.get('/environment/:environmentID', EnvCtrl.getEnv);
 api.post('/environment', EnvCtrl.addEnv);
 api.post('/environment/nfz', EnvCtrl.addNFZ);

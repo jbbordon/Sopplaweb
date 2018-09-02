@@ -3,6 +3,22 @@ const Environment = require ('../models/environment')
 
 /* environment methods */
 
+/* Return a list of environments stored in the DB*/
+function getEnvs (req, res) {
+	console.log ('GET /environment');
+	Environment.find(null, 'name _id', function(err, envs) {
+		if(err) {
+			res.status(500).send({ message : 'Error while retrieving the environments list'});
+		 } else {
+		    if(!envs) {
+		    	res.status(404).send({ message : 'Error there are no environments stored in the DB'});
+		    } else {
+				res.status(200).jsonp(envs);
+		    }
+		 }
+	});
+};
+
 /* Find a environment in the DB */
 function getEnv (req, res) {
 	console.log ('GET /environment/:environmentID');
@@ -16,7 +32,7 @@ function getEnv (req, res) {
 	    		res.status(200).jsonp(environment);
 	    	}
 	    }
-	});	
+	});
 };
 
 /* Create a new environment in the DB */
@@ -24,6 +40,7 @@ function addEnv (req, res) {
 	console.log ('POST /environment');
 	//read input data from http body request
 	let myEnv = new Environment();
+	myEnv.name = req.body.name;
 	// add the new Target in the DB
 	myEnv.save(function (err, envStored) {
 		if (err) {
@@ -31,7 +48,7 @@ function addEnv (req, res) {
 		} else {
 			res.status(200).send ({Environment : envStored});
 		}
-	});	
+	});
 };
 
 /* Add a NFZ to an existing environment in the DB */
@@ -49,11 +66,11 @@ function addNFZ (req, res) {
 	    		let myNFZ = {
 					latitude     : req.body.latitude,
 					longitude    : req.body.longitude,
-					x_width      : req.body.x_width,
-					y_height     : req.body.y_height,
-					area_bearing : req.body.area_bearing,					
+					xWidth      : req.body.xWidth,
+					yHeight     : req.body.yHeight,
+					areaBearing : req.body.areaBearing,
 	    		}
-	    		environment.nfzs.push (myNFZ);	
+	    		environment.nfzs.push (myNFZ);
 	    		// save the data
 	    		environment.save (function (err, environmentSaved) {
 					if (err) {
@@ -81,9 +98,9 @@ function addWind (req, res) {
 	    		// read the input data
 	    		let myWind = {
 					speed     : req.body.speed,
-					direction : req.body.direction				
+					direction : req.body.direction
 	    		}
-	    		environment.wind = myWind;	
+	    		environment.wind = myWind;
 	    		// save the data
 	    		environment.save (function (err, environmentSaved) {
 					if (err) {
@@ -112,9 +129,9 @@ function updateNFZ (req, res) {
 		    	let myNFZ = {
 					latitude     : req.body.latitude,
 					longitude    : req.body.longitude,
-					x_width      : req.body.x_width,
-					y_height     : req.body.y_height,
-					area_bearing : req.body.area_bearing,					
+					xWidth      : req.body.xWidth,
+					yHeight     : req.body.yHeight,
+					areaBearing : req.body.areaBearing,
 		    	};
 				// update environment nfzs array
 				environment.nfzs[req.body.nfzPos] = myNFZ;
@@ -128,7 +145,7 @@ function updateNFZ (req, res) {
 				});
 		    };
 		};
-	});	
+	});
 };
 
 /* Update the wind from a given environment */
@@ -145,9 +162,9 @@ function updateWind (req, res) {
 		    	// retrieve the new wind data
 	    		let myWind = {
 					speed     : req.body.speed,
-					direction : req.body.direction				
+					direction : req.body.direction
 	    		}
-	    		environment.wind = myWind;	
+	    		environment.wind = myWind;
 				// save the environment in the DB
 				environment.save (function (err, environmentSaved) {
 					if (err) {
@@ -158,7 +175,7 @@ function updateWind (req, res) {
 				});
 		    };
 		};
-	});	
+	});
 };
 
 /* Delete a given environment from the DB */
@@ -171,7 +188,7 @@ function deleteEnv (req, res) {
 		} else {
 			if (!environment) {
 				res.status(404).send({ message : 'Environment does not exist in the DB'});
-			} else {		
+			} else {
 				res.status(200).send ({message : 'Environment successfully deleted in the DB'});
 			};
 		};
@@ -188,11 +205,11 @@ function deleteNFZ (req, res) {
 	    } else {
 		    if (!environment) {
 		    	res.status(404).send({ message : 'Environment does not exist in the DB'});
-		    } else {    	
-				// update environment nfzs array	    	
+		    } else {
+				// update environment nfzs array
 				for (var i = req.body.nfzPos; i < environment.nfzs.length; i++) {
 					environment.nfzs[i] = environment.nfzs[i+1];
-				}	    	
+				}
 				// save the environment in the DB
 				environment.save (function (err, environmentSaved) {
 					if (err) {
@@ -203,7 +220,7 @@ function deleteNFZ (req, res) {
 				});
 		    };
 		};
-	});	
+	});
 };
 
 /* Delete the wind from an existing environment */
@@ -216,9 +233,9 @@ function deleteWind (req, res) {
 	    } else {
 		    if (!environment) {
 		    	res.status(404).send({ message : 'Environment does not exist in the DB'});
-		    } else {    	
+		    } else {
 				// delete environment wind
-				environment.wind = null;	    						
+				environment.wind = null;
 				// save the environment in the DB
 				environment.save (function (err, environmentSaved) {
 					if (err) {
@@ -229,15 +246,16 @@ function deleteWind (req, res) {
 				});
 		    };
 		};
-	});	
+	});
 };
 
 /* environment methods export */
 module.exports = {
+	getEnvs,
 	getEnv,
 	addEnv,
 	addNFZ,
-	addWind,		
+	addWind,
 	updateNFZ,
 	updateWind,
 	deleteEnv,

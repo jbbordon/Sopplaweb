@@ -1,10 +1,9 @@
 /* Modules import */
 import React, { Component } from 'react';
-import { render } from 'react-dom';
 /* Bootstrap components import */
 import { Modal, Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 
-class ModalLoad extends Component {
+class ModalRemove extends Component {
 
   constructor(props) {
     super(props);
@@ -15,7 +14,7 @@ class ModalLoad extends Component {
     }
 
     this.handleSelect = this.handleSelect.bind(this);
-    this.handleLoad = this.handleLoad.bind(this);
+    this.handleRemove = this.handleRemove.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -28,8 +27,8 @@ class ModalLoad extends Component {
     }
   }
 
-  handleLoad() {
-    this.props.onLoad(this.state);
+  handleRemove() {
+    this.props.onRemove(this.state);
   }
 
   handleSelect (item) {
@@ -45,17 +44,19 @@ class ModalLoad extends Component {
     });
 
     return (
-      <div id='modalLoad'>
+      <div id='modalRemove'>
         <Modal {...this.props}>
           <Modal.Header closeButton>
             <Modal.Title>{this.props.title}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {list}
+            <ListGroup componentClass="ul">
+              {list}
+            </ListGroup>
           </Modal.Body>
           <Modal.Footer>
             <p>{this.state.name}</p>
-            <Button onClick={this.handleLoad}>Load</Button>
+            <Button onClick={this.handleRemove}>Remove</Button>
             <Button onClick={this.props.onHide}>Close</Button>
           </Modal.Footer>
         </Modal>
@@ -64,4 +65,4 @@ class ModalLoad extends Component {
   }
 }
 
-export default ModalLoad;
+export default ModalRemove;

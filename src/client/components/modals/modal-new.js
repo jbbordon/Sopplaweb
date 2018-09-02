@@ -1,7 +1,7 @@
 /* Modules import */
 import React, { Component } from 'react';
 /* Bootstrap components import */
-import { Modal, Button, Form, FormGroup, FormControl } from 'react-bootstrap';
+import { Modal, Button, Form, FormGroup, FormControl, Checkbox } from 'react-bootstrap';
 
 class ModalNew extends Component {
 
@@ -9,7 +9,8 @@ class ModalNew extends Component {
     super(props);
 
     this.state = {
-      name : ""
+      name : "",
+      add : false
     }
 
     this.handleNew = this.handleNew.bind(this);
@@ -21,13 +22,24 @@ class ModalNew extends Component {
     this.props.onNew(this.state);
   }
 
+
   handleChange (event) {
-    const { name , value } = event.target;
-    this.setState({ name : value });
+    const {value, id} = event.target;
+    this.setState({[id]: value});
   }
 
 
   render () {
+    const needAddCheckbox = this.props.addCheckBox;
+    let checkBox;
+
+    // check if there is a need to include a checbox or not
+    if (needAddCheckbox) {
+      checkBox =
+        <Checkbox id="add" onChange={this.handleChange}>
+          Add to current Scenario
+        </Checkbox>;
+    }
     return (
       <div id='modalNew'>
         <Modal {...this.props}>
@@ -36,8 +48,9 @@ class ModalNew extends Component {
           </Modal.Header>
           <Modal.Body>
           <Form inline>
-            <FormGroup controlId="inputName">
-              <FormControl type="text" placeholder="name" onChange={this.handleChange}/>
+            <FormGroup>
+              <FormControl type="text" id="name" placeholder="name" onChange={this.handleChange}/>
+              {checkBox}
             </FormGroup>
           </Form>
           </Modal.Body>

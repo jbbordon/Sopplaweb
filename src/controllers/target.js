@@ -25,13 +25,13 @@ function getTargets (req, res) {
 	Target.find(null, 'name _id', function(err, targets) {
 		if(err) {
 			res.status(500).send({ message : 'Error while retrieving the targets list'});
-	    } else { 
-	    	if(!targets) { 
+	    } else {
+	    	if(!targets) {
 	    		res.status(404).send({ message : 'Error there are no targets stored in the DB'});
 	    	} else {
 				res.status(200).jsonp(targets);
 	    	}
-	    }	
+	    }
 	});
 };
 
@@ -57,7 +57,6 @@ function addTarget (req, res) {
 	//read input data from http body request
 	let myTarget = new Target();
 	myTarget.name  = req.body.name;
-	console.log(myTarget);
 	// add the new Target to the DB
 	myTarget.save(function (err, targetStored) {
 		if (err) {
@@ -65,7 +64,7 @@ function addTarget (req, res) {
 		} else {
 			res.status(200).send ({Target : targetStored});
 		}
-	});	
+	});
 };
 
 /* Add a motion model point to a target in the DB */
@@ -97,7 +96,7 @@ function addTargetMotionModelPoint (req, res) {
 				});
 		    };
 		};
-	});		
+	});
 };
 
 /* Add a motion model to a target in the DB */
@@ -122,7 +121,7 @@ function addTargetMotionModel (req, res) {
 	    		});
 	    	}
 	    }
-	});		
+	});
 };
 
 /* Add a belief layer to a given target */
@@ -134,7 +133,7 @@ function addTargetBelief (req, res) {
 	    } else {
 	    	if (!target) {
 	    		res.status(404).send({ message : 'Target does not exist in the DB'});
-	    	} else { 		
+	    	} else {
 	    		target.belief.push (
 	    			{
 	    				layer  : req.body.layer,
@@ -151,7 +150,7 @@ function addTargetBelief (req, res) {
 	    		});
 	    	}
 	    }
-	});	
+	});
 };
 
 /* Update a given target from the DB */
@@ -170,7 +169,7 @@ function updateTarget (req, res) {
 				res.status(200).send ({Target : targetStored});
 			});
 	    }
-	});	
+	});
 };
 
 /* Update a target motion model point of a given Target */
@@ -202,7 +201,7 @@ function updateTargetMotionModelPoint (req, res) {
 				});
 		    };
 		};
-	});		
+	});
 };
 
 /* Add a motion point to a target in the DB */
@@ -228,7 +227,7 @@ function updateTargetMotionModel (req, res) {
 				});
 		    };
 		};
-	});		
+	});
 };
 
 /* Update a target belief layer of a given Target */
@@ -260,7 +259,7 @@ function updateTargetBelief (req, res) {
 				});
 		    };
 		};
-	});		
+	});
 };
 
 /* Delete a given target from the DB */
@@ -276,17 +275,17 @@ function deleteTarget (req, res) {
 			} else {
 				// now remove the target _id from every scenario with a reference to it
 				Scenario.findOneAndUpdate (
-					null, 
-					{ $pull : 
+					null,
+					{ $pull :
 						{ targets : req.params.targetID }
 					},
-					{new : true},							
+					{new : true},
 					function (err, scenario) {
 						if (err) {
 							res.status(500).send({ message : 'Error while deleting the target from every Scenario'});
 						};
 					}
-				);							
+				);
 				res.status(200).send ({message : 'Target successfully deleted in the DB'});
 			};
 		};
@@ -298,7 +297,7 @@ function deleteTargetMotionModelPoint (req, res) {
 	console.log ('DELETE /target/:targetID/motionModel/:pointID');
 	Target.findOneAndUpdate (
 		{ '_id' : req.params.targetID},
-		{ $pull : 
+		{ $pull :
 			{ 'motionModel.points' :
 				{ '_id' : req.params.pointID }
 			}
@@ -340,7 +339,7 @@ function deleteTargetMotionModel (req, res) {
 				});
 		    };
 		};
-	});	
+	});
 };
 
 /* Delete a belief layer from a given target */
@@ -349,7 +348,7 @@ function deleteTargetBelief (req, res) {
 	// search for the Target in the DB
 	Target.findOneAndUpdate (
 		{ '_id' : req.params.targetID},
-		{ $pull : 
+		{ $pull :
 			{ 'belief' :
 				{ '_id' : req.params.layerID }
 			}
@@ -372,16 +371,16 @@ function deleteTargetBelief (req, res) {
 /* Target methods export */
 module.exports = {
 	getModelTypes,
-	getLayerTypes,	
+	getLayerTypes,
 	getTarget,
-	getTargets,	
+	getTargets,
 	addTarget,
 	addTargetMotionModelPoint,
 	addTargetMotionModel,
 	addTargetBelief,
 	updateTargetMotionModelPoint,
 	updateTargetMotionModel,
-	updateTargetBelief,	
+	updateTargetBelief,
 	deleteTarget,
 	deleteTargetMotionModelPoint,
 	deleteTargetMotionModel,

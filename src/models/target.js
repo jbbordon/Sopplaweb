@@ -9,7 +9,7 @@ const TargetSchema = new Schema ({
 	belief : [  // de 1 a n capas de probabilidad
 		{
 			layer  : { type: String, enum: config.beliefLayers }, // layer name
-			belief : [ { type: Number, min: 0, max: 1} ], // x_cells * y_cells matriz
+			belief : [ { type: Number, min: 0, max: 1} ], // xCells * yCells matriz
 			weight : { type: Number, min: 0, max: 1 }     // layer weight
 		}
 	],

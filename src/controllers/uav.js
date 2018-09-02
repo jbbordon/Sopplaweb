@@ -22,7 +22,7 @@ function getUAVSensors (req, res) {
 	console.log ('GET /uavs/sensors');
 	res.status(200).jsonp(config.uavSensors);
 };
- 
+
 /* Return the list of UAVs of the DB */
 function getUAVs (req, res) {
 	console.log ('GET /uavs');
@@ -30,12 +30,12 @@ function getUAVs (req, res) {
 	    if(err) {
 	    	res.status(500).send({ message : 'Error while retrieving the uav list'});
 	    } else {
-		    if(!uavs) { 
+		    if(!uavs) {
 		    	res.status(404).send({ message : 'Error there are no uavs stored in the DB'});
 		    } else {
 				res.status(200).jsonp(uavs);
 		    };
-		};	
+		};
 	});
 };
 
@@ -61,11 +61,6 @@ function addUAV (req, res) {
 	//read input data from http body request
 	let myUAV = new UAV();
 	myUAV.name = req.body.name;
-	myUAV.type = req.body.type;	
-	myUAV.motionModel = {
-		model : req.body.modelType,
-		at   : req.body.modelAt
-	};	
 	// store the new UAV in the DB
 	myUAV.save (function (err, uavStored) {
 		if (err) {
@@ -91,11 +86,11 @@ function addUAVSensor (req, res) {
 				let mySensor = {
 					name : req.body.name,
 					type : req.body.type,
-					control_at : req.body.control_at,
-					capture_at : req.body.capture_at,
-					init_state : {
+					controlAt : req.body.controlAt,
+					captureAt : req.body.captureAt,
+					initState : {
 						elevation : req.body.elevation,
-						azimuth   : req.body.azimuth, 
+						azimuth   : req.body.azimuth,
 						params    : JSON.parse(req.body.params)
 					}
 				};
@@ -110,7 +105,7 @@ function addUAVSensor (req, res) {
 				});
 		    };
 		};
-	});	
+	});
 };
 
 /* Update a given UAV from the DB */
@@ -118,33 +113,33 @@ function updateUAV (req, res) {
 	console.log ('PUT /uav');
 	// seach the DB for the UAV and update it
 	UAV.findOneAndUpdate (
-		{'_id' : req.body.id}, 
+		{'_id' : req.body._id},
 		{ $set : {
 			name: req.body.name,
 			type: req.body.type,
-			model : {
+			motionModel : {
 				type : req.body.modelType,
 				at   : req.body.modelAt
-			},			
-			init_time : req.body.init_time,
-			init_state : {
-				latitude         : req.body.i_latitude,
-				longitude        : req.body.i_longitude,
-				elevation        : req.body.i_elevation,
-				heading          : req.body.i_heading,
-				yaw              : req.body.i_yaw,
-				speed            : req.body.i_speed
 			},
-			flight_time : req.body.flight_time,
-			final_state : {
-				latitude         : req.body.f_latitude,
-				longitude        : req.body.f_longitude,
-				elevation        : req.body.f_elevation,
-				heading          : req.body.f_heading,
-				speed            : req.body.f_speed
-			}			
+			initTime : req.body.initTime,
+			initState : {
+				latitude         : req.body.initLatitude,
+				longitude        : req.body.initLongitude,
+				elevation        : req.body.initElevation,
+				heading          : req.body.initHeading,
+				yaw              : req.body.initYaw,
+				speed            : req.body.initSpeed
+			},
+			flightTime : req.body.flightTime,
+			finalState : {
+				latitude         : req.body.finalLatitude,
+				longitude        : req.body.finalLongitude,
+				elevation        : req.body.finalElevation,
+				heading          : req.body.finalHeading,
+				speed            : req.body.finalSpeed
+			}
 		}},
-		{new : true},							
+		{new : true},
 		function (err, uavUpdated) {
 			if (err) {
 				res.status(500).send({ message : 'Error while updating the UAV in the DB'});
@@ -174,11 +169,11 @@ function updateUAVSensor (req, res) {
 				let mySensor = {
 					name : req.body.name,
 					type : req.body.type,
-					control_at : req.body.control_at,
-					capture_at : req.body.capture_at,
-					init_state : {
+					controlAt : req.body.controlAt,
+					captureAt : req.body.captureAt,
+					initState : {
 						elevation : req.body.elevation,
-						azimuth   : req.body.azimuth, 
+						azimuth   : req.body.azimuth,
 						params    : req.body.params
 					}
 				};
@@ -194,7 +189,7 @@ function updateUAVSensor (req, res) {
 				});
 		    };
 		};
-	});	
+	});
 };
 
 /* Delete a given uav from the DB */
@@ -211,16 +206,16 @@ function deleteUAV (req, res) {
 				// now remove the uav _id from every scenario with a reference to it
 				Scenario.findOneAndUpdate (
 					null,
-					{ $pull : 
+					{ $pull :
 						{ uavs : req.params.uavID }
 					},
-					{new : true},							
+					{new : true},
 					function (err, scenario) {
 						if (err) {
 							res.status(500).send({ message : 'Error while deleting the uav from every Scenario'});
 						};
 					}
-				);			
+				);
 				res.status(200).send ({message : 'UAV successfully deleted in the DB'});
 			};
 		};
@@ -232,19 +227,19 @@ function deleteUAVSensor (req, res) {
 	console.log ('DELETE /uavs/:uavID/sensor/:sensorPos');
 	// search for the UAV in the DB
 	UAV.findById(req.params.uavID, function(err, uav) {
-	    if (err) { 
+	    if (err) {
 	    	res.status(500).send({ message : 'Error while searching the UAV in the DB'});
 	    } else {
 		    if (!uav) {
 		    	res.status(404).send({ message : 'UAV does not exist in the DB'});
 		    } else {
-		    	// update the sensors array	
+		    	// update the sensors array
 				for (var i = req.body.sensorPos; i < uav.sensors.length; i++) {
 					uav.sensors[i] = uav.sensors[i+1];
 				}
 				// save the UAV in the DB
 				uav.save (function (err, uavStored) {
-					if (err) { 
+					if (err) {
 						res.status(500).send({ message : 'Error while saving the uav in the DB'});
 					} else {
 						res.status(200).send ({UAV : uavStored});
@@ -252,16 +247,16 @@ function deleteUAVSensor (req, res) {
 				});
 		    };
 		};
-	});	
+	});
 };
 
 /* UAV methods export */
 module.exports = {
-	getUAVTypes,	
+	getUAVTypes,
 	getUAVModels,
 	getUAVSensors,
-	getUAV,		
-	getUAVs,		
+	getUAV,
+	getUAVs,
 	addUAV,
 	addUAVSensor,
 	updateUAV,

@@ -1,45 +1,71 @@
 /* Modules import */
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-/* Styles import */
-import '../../style/scenario.css';
 /* React-Bootstrap components import */
 import { FormGroup, InputGroup, FormControl, Button } from 'react-bootstrap';
+/* Styles import */
+import '../../style/scenario.css';
 
 class ScenarioForm extends Component {
 
   constructor (props) {
     super(props);
-
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleSave = this.handleSave.bind(this);
-
+    // internal state
     this.state = {
+      name : '',
       latitude : '',
       longitude : '',
-      x_width : '',
-      y_height: '',
-      x_cells: '',
-      y_cells: '',
-      area_bearing: ''
+      xWidth : '',
+      yHeight: '',
+      xCells: '',
+      yCells: '',
+      areaBearing: ''
     }
-
+    //binding of methods
+    this.resetForm = this.resetForm.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.getValidationState = this.getValidationState.bind(this);
+    this.handleSave = this.handleSave.bind(this);
   }
 
-  componentDidMount() {
-    // Subscribe to changes
-    //DataSource.addChangeListener(this.handleLoad);
+  /* reset scenario-form to default data */
+  resetForm () {
+    this.setState({
+      name : this.props.name,
+      latitude : '',
+      longitude : '',
+      xWidth : '',
+      yHeight: '',
+      xCells: '',
+      yCells: '',
+      areaBearing: ''
+    });
   }
 
-  componentWillUnmount() {
-    // Clean up listener
-    //DataSource.removeChangeListener(this.handleLoad);
+  componentDidUpdate(prevProps) {
+    if (this.props !== prevProps) {
+      // check if the scenario area is already defined or not
+      if (!this.props.zone.latitude) {
+        // if scenario area is not yet defined then reset the form fields
+        this.resetForm();
+      } else {
+        // area is defined for current scenario so set the form fields
+        this.setState ({
+          name : this.props.name,
+          latitude : this.props.zone.latitude,
+          longitude : this.props.zone.longitude,
+          xWidth : this.props.zone.xWidth,
+          yHeight: this.props.zone.yHeight,
+          xCells: this.props.zone.xCells,
+          yCells: this.props.zone.yCells,
+          areaBearing: this.props.zone.areaBearing
+        })
+      }
+    }
   }
 
-  /* when the user loads an scenario update the form with the values loaded */
-  handleLoad () {
-    //const zone = DataSource.getZone();
-    //this.setState({ zone });
+  getValidationState() {
+    return null;
   }
 
   handleInputChange(event) {
@@ -49,14 +75,46 @@ class ScenarioForm extends Component {
 
   handleSave(event) {
     event.preventDefault();
-    this.props.onSave(this.state);
+    // build the data to save
+    var scenario = this.state;
+    scenario._id = this.props.id;
+    //send the server the PUT request with the new data
+    fetch('/api/scenario', {
+      method: 'PUT',
+      body: JSON.stringify(scenario),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      if (!res.ok) {
+        throw error (res.statusText);
+      }
+      res.json()
+      .then(data => {
+        // if data is saved lift up the scenario area to be updated at app lvl
+        this.props.onSave(data);
+      })
+    })
+    .catch(err => console.log(err));
   }
 
   render () {
     return (
       <div className='scenarioForm'>
         <form onSubmit={this.handleSave}>
-          <FormGroup bsSize="small">
+          <FormGroup bsSize="small" validationState={this.getValidationState()}>
+            <InputGroup>
+              <InputGroup.Addon>Name</InputGroup.Addon>
+              <FormControl
+                type="text"
+                onChange={this.handleInputChange}
+                id="name"
+                value={this.state.name}
+                placeholder="Text"
+                required/>
+            </InputGroup>
             <InputGroup>
               <InputGroup.Addon>Latitude</InputGroup.Addon>
               <FormControl
@@ -66,10 +124,9 @@ class ScenarioForm extends Component {
                 max="90"
                 id="latitude"
                 value={this.state.latitude}
-                placeholder="Decimal Degrees"/>
+                placeholder="Decimal Degrees"
+                required/>
             </InputGroup>
-          </FormGroup>
-          <FormGroup bsSize="small">
             <InputGroup>
               <InputGroup.Addon>Longitude</InputGroup.Addon>
               <FormControl
@@ -79,58 +136,53 @@ class ScenarioForm extends Component {
                 max="180"
                 id="longitude"
                 value={this.state.longitude}
-                placeholder="Decimal Degrees"/>
+                placeholder="Decimal Degrees"
+                required/>
             </InputGroup>
-          </FormGroup>
-          <FormGroup bsSize="small">
             <InputGroup>
               <InputGroup.Addon>Width</InputGroup.Addon>
               <FormControl
                 type="number"
                 onChange={this.handleInputChange}
                 min="0"
-                id="x_width"
-                value={this.state.x_width}
-                placeholder="Meters"/>
+                id="xWidth"
+                value={this.state.xWidth}
+                placeholder="Meters"
+                required/>
             </InputGroup>
-          </FormGroup>
-          <FormGroup bsSize="small">
             <InputGroup>
               <InputGroup.Addon>Height</InputGroup.Addon>
               <FormControl
                 type="number"
                 onChange={this.handleInputChange}
                 min="0"
-                id="y_height"
-                value={this.state.y_height}
-                placeholder="Meters"/>
+                id="yHeight"
+                value={this.state.yHeight}
+                placeholder="Meters"
+                required/>
             </InputGroup>
-          </FormGroup>
-          <FormGroup bsSize="small">
             <InputGroup>
               <InputGroup.Addon>X Cells</InputGroup.Addon>
               <FormControl
                 type="number"
                 onChange={this.handleInputChange}
                 min="0"
-                id="x_cells"
-                value={this.state.x_cells}
-                placeholder="number"/>
+                id="xCells"
+                value={this.state.xCells}
+                placeholder="number"
+                required/>
             </InputGroup>
-          </FormGroup>
-          <FormGroup bsSize="small">
             <InputGroup>
               <InputGroup.Addon>Y cells</InputGroup.Addon>
               <FormControl
                 type="number"
                 onChange={this.handleInputChange}
                 min="0"
-                id="y_cells"
-                value={this.state.y_cells}
-                placeholder="number"/>
+                id="yCells"
+                value={this.state.yCells}
+                placeholder="number"
+                required/>
             </InputGroup>
-          </FormGroup>
-          <FormGroup bsSize="small">
             <InputGroup>
               <InputGroup.Addon>Bearing</InputGroup.Addon>
               <FormControl
@@ -138,9 +190,10 @@ class ScenarioForm extends Component {
                 onChange={this.handleInputChange}
                 min="0"
                 max="360"
-                id="area_bearing"
-                value={this.state.area_bearing}
-                placeholder="Degrees"/>
+                id="areaBearing"
+                value={this.state.areaBearing}
+                placeholder="Degrees"
+                required/>
             </InputGroup>
           </FormGroup>
           <Button type="submit">Save</Button>

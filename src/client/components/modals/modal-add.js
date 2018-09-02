@@ -4,7 +4,7 @@ import { render } from 'react-dom';
 /* Bootstrap components import */
 import { Modal, Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 
-class ModalLoad extends Component {
+class ModalAdd extends Component {
 
   constructor(props) {
     super(props);
@@ -15,7 +15,7 @@ class ModalLoad extends Component {
     }
 
     this.handleSelect = this.handleSelect.bind(this);
-    this.handleLoad = this.handleLoad.bind(this);
+    this.handleAdd = this.handleAdd.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -28,8 +28,8 @@ class ModalLoad extends Component {
     }
   }
 
-  handleLoad() {
-    this.props.onLoad(this.state);
+  handleAdd() {
+    this.props.onAdd(this.state);
   }
 
   handleSelect (item) {
@@ -45,7 +45,7 @@ class ModalLoad extends Component {
     });
 
     return (
-      <div id='modalLoad'>
+      <div id='modalAdd'>
         <Modal {...this.props}>
           <Modal.Header closeButton>
             <Modal.Title>{this.props.title}</Modal.Title>
@@ -55,7 +55,7 @@ class ModalLoad extends Component {
           </Modal.Body>
           <Modal.Footer>
             <p>{this.state.name}</p>
-            <Button onClick={this.handleLoad}>Load</Button>
+            <Button onClick={this.handleAdd}>Add</Button>
             <Button onClick={this.props.onHide}>Close</Button>
           </Modal.Footer>
         </Modal>
@@ -64,4 +64,4 @@ class ModalLoad extends Component {
   }
 }
 
-export default ModalLoad;
+export default ModalAdd;

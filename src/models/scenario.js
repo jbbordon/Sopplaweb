@@ -8,11 +8,11 @@ const ScenarioSchema = new Schema ({
 	zone   : {
 		latitude 	 : { type: Number, min: -90,  max: +90 },
 		longitude 	 : { type: Number, min: -180, max: +180 },
-		x_width 	 : Number, // meters
-		y_height 	 : Number, // meters
-		area_bearing : { type: Number, min: 0, max: 360 },
-		x_cells 	 : Number, 
-		y_cells 	 : Number 
+		xWidth 	 : Number, // meters
+		yHeight 	 : Number, // meters
+		areaBearing : { type: Number, min: 0, max: 360 },
+		xCells 	 : Number,
+		yCells 	 : Number,
 	},
 	targets : [  // from 1 to n targets
 		{ type: mongoose.Schema.Types.ObjectId, ref: 'Target' }
@@ -21,12 +21,13 @@ const ScenarioSchema = new Schema ({
 		{ type: mongoose.Schema.Types.ObjectId, ref: 'UAV' }
 	],
 	environment : {
-		type: mongoose.Schema.Types.ObjectId, ref: 'Environment' 
+		type: mongoose.Schema.Types.ObjectId, ref: 'Environment'
 	},
 	request : {
-		type: mongoose.Schema.Types.ObjectId, ref: 'Request' 
-	}	
-});
+		type: mongoose.Schema.Types.ObjectId, ref: 'Request'
+	}
+},
+{ minimize: false });
 
 // Scenario model export
 module.exports = mongoose.model('Scenario', ScenarioSchema);

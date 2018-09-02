@@ -1,3 +1,25 @@
-.app {
-  text-align: center;
+
+.sopplaNav {
+  width: 100%;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.scenario {
+  position: absolute;
+  width: 25%;
+  margin-right:75%;
+  margin-top: 0;
+  padding-top: 0;
+  overflow: scroll;
+}
+
+#cesiumContainer {
+  position: absolute;
+  width: 75%;
+  margin-left: 25%;
+  height: 100%;
+  margin-top: 0;
+  padding-top: 0;
+  overflow: hidden;
 }

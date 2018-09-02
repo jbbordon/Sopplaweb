@@ -2,9 +2,7 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 /* React-Bootstrap components import */
-import { DropdownButton, MenuItem } from 'react-bootstrap';
-/* Styles import */
-import '../../style/scenario.css';
+import { NavItem, NavDropdown, MenuItem} from 'react-bootstrap';
 /* Components import */
 import ModalNew from '../modals/modal-new.js'
 import ModalLoad from '../modals/modal-load.js'
@@ -17,7 +15,7 @@ class ScenarioMenu extends Component {
     super(props);
     // internal state
     this.state = {
-      list : [],
+      scenarioList : [],
       showNew : false,
       showLoad : false,
       showDelete : false,
@@ -29,10 +27,10 @@ class ScenarioMenu extends Component {
     this.handleLoad = this.handleLoad.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
     this.handleSave = this.handleSave.bind(this);
-    this.handleScenarioButton = this.handleScenarioButton.bind(this);
+    this.handleScenarioMenu = this.handleScenarioMenu.bind(this);
   }
 
-  /* Get the list of scenarios available in the server */
+  /* Get the scenarioList of scenarios available in the server */
   getScenarios () {
     fetch('/api/scenario')
     .then(res => {
@@ -42,38 +40,101 @@ class ScenarioMenu extends Component {
       res.json()
       .then(data => {
         //update the scenarioList with the data received
-        this.setState({ list: data })
+        this.setState({ scenarioList: data })
       })
     })
-    .catch(err => console.error(err))
+    .catch(err => console.log(err))
   }
 
   /* Handle new */
   handleNew (scenario) {
-    this.props.onNew(scenario);
+    fetch('/api/scenario', {
+      method: 'POST',
+      body: JSON.stringify(scenario),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      if (!res.ok) {
+        alert(`${res.statusText}`);
+      } else {
+        res.json()
+        .then(data => {
+          this.props.onAction('new', data);
+          alert(`${scenario.name} created`);
+        })
+      }
+    })
+    .catch(err => console.log(err));
     this.setState({ showNew : false });
   }
 
   /* Handle load */
   handleLoad (scenario) {
-    this.props.onLoad(scenario);
+    fetch('/api/scenario/' + scenario._id)
+    .then(res => {
+      if (!res.ok) {
+        // show an alert as the response was not ok
+        alert(`${res.statusText}`);
+      } else {
+        res.json()
+        .then(data => {
+          // populate the scenario loaded
+          this.props.onAction('load', data);
+          alert(`${scenario.name} loaded`);
+        })
+      }
+    })
+    .catch(err => console.log(err));
     this.setState({ showLoad : false });
   }
 
   /* Handle delete */
   handleDelete (scenario) {
-    this.props.onDelete(scenario);
+    fetch('/api/scenario/' + scenario._id, {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      if (!res.ok) {
+        alert(`${res.statusText}`);
+      } else {
+        this.props.onAction('delete', scenario);
+        alert(`${scenario.name} deleted`);
+      }
+    })
+    .catch(err => console.log(err));
     this.setState({ showDelete : false });
   }
 
   /* Handle save */
   handleSave () {
-    this.props.onSave();
-    this.setState({ showDelete : false });
+    fetch('/api/scenario', {
+      method: 'PUT',
+      body: JSON.stringify(this.state.scenario),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      if (!res.ok) {
+        alert(`${res.statusText}`);
+      } else {
+        alert(`${scenario.name} saved`);
+      }
+    })
+    .catch(err => console.log(err));
+    this.setState({ showSave : false });
   }
 
   /* Scenario Menu */
-  handleScenarioButton (eventKey) {
+  handleScenarioMenu (eventKey) {
     switch (eventKey) {
       case 1: // New
         this.setState({ showNew: true });
@@ -96,17 +157,13 @@ class ScenarioMenu extends Component {
 
   render () {
     return (
-      <div className="scenarioMenu">
-        <h4>Scenario:
-          <span>
-            <DropdownButton id="scenarioButton" bsStyle="secondary" bsSize="small" title={this.props.name}>
-              <MenuItem eventKey={1} onSelect={this.handleScenarioButton}>New</MenuItem>
-              <MenuItem eventKey={2} onSelect={this.handleScenarioButton}>Load</MenuItem>
-              <MenuItem eventKey={3} onSelect={this.handleScenarioButton}>Save</MenuItem>
-              <MenuItem eventKey={4} onSelect={this.handleScenarioButton}>Delete</MenuItem>
-            </DropdownButton>
-          </span>
-        </h4>
+      <NavItem>
+        <NavDropdown title="Scenario">
+          <MenuItem eventKey={1} onSelect={this.handleScenarioMenu}>New</MenuItem>
+          <MenuItem eventKey={2} onSelect={this.handleScenarioMenu}>Load</MenuItem>
+          <MenuItem eventKey={3} onSelect={this.handleScenarioMenu}>Save</MenuItem>
+          <MenuItem eventKey={4} onSelect={this.handleScenarioMenu}>Delete</MenuItem>
+        </NavDropdown>
         <ModalNew
           title="New Scenario"
           show={this.state.showNew}
@@ -116,14 +173,14 @@ class ScenarioMenu extends Component {
         <ModalLoad
           title="Load Scenario"
           show={this.state.showLoad}
-          list={this.state.list}
+          list={this.state.scenarioList}
           onLoad={(scenario) => this.handleLoad(scenario)}
           onHide={() => this.setState({ showLoad : false })}
         />
         <ModalDelete
           title="Delete Scenario"
           show={this.state.showDelete}
-          list={this.state.list}
+          list={this.state.scenarioList}
           onDelete={(scenario) => this.handleDelete(scenario)}
           onHide={() => this.setState({ showDelete : false })}
         />
@@ -133,7 +190,8 @@ class ScenarioMenu extends Component {
           onSave={() => this.handleSave()}
           onHide={() => this.setState({ showSave : false })}
         />
-      </div>
+      </NavItem>
+
     );
   }
 }

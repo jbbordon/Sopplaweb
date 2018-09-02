@@ -8,7 +8,7 @@ const RequestSchema = new Schema ({
 	merit    : {
 		constraints : [ Number ],
 		paretos     : [ Number ],
-		sorting     : [ Number ] 
+		sorting     : [ Number ]
 	},
 	algorithms : [ // array from 1 to n
 		{
@@ -26,13 +26,14 @@ const RequestSchema = new Schema ({
 	control : {
 		variables : [Boolean],
 		type : [Number],
-		limits : [ 
+		limits : [
 			{
 				min: Number,
 				max: Number
 			}
 		]
 	}
-});
+},
+{ minimize: false });
 
 module.exports = mongoose.model('Request', RequestSchema);

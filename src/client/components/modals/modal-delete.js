@@ -17,6 +17,16 @@ class ModalDelete extends Component {
     this.handleDelete = this.handleDelete.bind(this);
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.show !== prevProps.show) {
+      // reset internal state
+      this.setState ({
+        _id : "",
+        name : ""
+      })
+    }
+  }
+
   handleDelete() {
     this.props.onDelete(this.state);
   }
@@ -45,6 +55,7 @@ class ModalDelete extends Component {
             </ListGroup>
           </Modal.Body>
           <Modal.Footer>
+            <p>{this.state.name}</p>
             <Button onClick={this.handleDelete}>Delete</Button>
             <Button onClick={this.props.onHide}>Close</Button>
           </Modal.Footer>
