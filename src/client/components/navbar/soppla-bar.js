@@ -29,6 +29,7 @@ class SopplaNav extends Component {
           />
           <UavMenu
             scenario={this.props.scenarioID}
+            scenarioUAVs={this.props.uavs}
             onAction={(eventKey, param) => this.props.onUavAction(eventKey, param)}
           />
           <TargetMenu

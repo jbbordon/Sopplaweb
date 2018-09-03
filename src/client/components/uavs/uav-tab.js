@@ -122,7 +122,6 @@ class UavTab extends Component {
   handleSelectChange(event) {
     // read selected value and get it from scenarioUAVs
     const value = event.target.value;
-    console.log(value);
     const uav = this.props.scenarioUAVs[value];
     // update internal state with the required UAV
     this.setState({
@@ -132,7 +131,11 @@ class UavTab extends Component {
   }
 
   handleSave (uav) {
-    console.log(uav);
+    const param = {
+      pos : this.state.selectValue,
+      uav : uav
+    }
+    this.props.onUavSave(param);
   }
 
   /* Render UavTab component */

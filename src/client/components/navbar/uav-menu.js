@@ -16,7 +16,6 @@ class UavMenu extends Component {
     // internal state
     this.state = {
       uavList : [],
-      scenarioUAVs : [],
       showNew : false,
       showAdd : false,
       showRemove : false,
@@ -57,8 +56,8 @@ class UavMenu extends Component {
       }
       res.json()
       .then(data => {
-        //update the uavsList with the data received
-        this.setState({ scenarioUAVs: data })
+        //lift up the uavsList with the data received
+        this.props.onAction('delete', data);
       })
     })
     .catch(err => console.log(err))
@@ -121,7 +120,7 @@ class UavMenu extends Component {
         res.json()
         .then(data => {
           // lift up the scenario uavList to be updated at the app level
-          this.props.onAction(2, data);
+          this.props.onAction('add', data);
           alert(`${uav.name} added`);
         })
       }
@@ -149,7 +148,7 @@ class UavMenu extends Component {
         res.json()
         .then(data => {
           // lift up the scenario uavList to be updated at the app level
-          this.props.onAction(3, data);
+          this.props.onAction('remove', data);
         });
         alert(`${uav.name} removed`);
       }
@@ -176,7 +175,6 @@ class UavMenu extends Component {
         of the scenario uavs */
         this.getScenarioUAVs();
         // lift up the uavList to be updated at the app level
-        this.props.onAction(4, this.state.scenarioUAVs);
         alert(`${uav.name} deleted`);
       }
     })
@@ -195,7 +193,6 @@ class UavMenu extends Component {
         this.setState({ showAdd: true });
         break;
       case 2.3: // Remove
-        this.getScenarioUAVs();
         this.setState({ showRemove: true});
         break;
       case 2.4: // Delete
@@ -233,7 +230,7 @@ class UavMenu extends Component {
         <ModalRemove
           title="Remove UAV"
           show={this.state.showRemove}
-          list={this.state.scenarioUAVs}
+          list={this.props.scenarioUAVs}
           onRemove={(uav) => this.handleRemove(uav)}
           onHide={() => this.setState({ showRemove : false })}
         />

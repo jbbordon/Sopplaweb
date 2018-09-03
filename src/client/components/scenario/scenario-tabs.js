@@ -23,6 +23,7 @@ class ScenarioTabs extends Component {
           <UavTab
             scenarioID={this.props.scenarioID}
             scenarioUAVs={this.props.scenarioUAVs}
+            onUavSave={(param) => this.props.onUavAction('save', param)}
           />
         </Tab>
         <Tab className="tab" eventKey={2} title="Targets">

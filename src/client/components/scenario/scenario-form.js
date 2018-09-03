@@ -95,6 +95,7 @@ class ScenarioForm extends Component {
       .then(data => {
         // if data is saved lift up the scenario area to be updated at app lvl
         this.props.onSave(data);
+        alert(`${this.state.name} saved`);
       })
     })
     .catch(err => console.log(err));

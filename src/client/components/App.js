@@ -85,7 +85,10 @@ class App extends Component {
         this.setState({scenario : param});
         break;
       case 'save':
-        this.setState({scenario : param});
+        // get internal state
+        let scenario = Object.assign({}, this.state.scenario);
+        scenario.name = param.name;
+        scenario.zone = param.zone;
         break;
       case 'delete':
         // check if scenario deleted is the current one
@@ -101,9 +104,27 @@ class App extends Component {
 
   /* Handles UAVs menu */
   handleUavMenu (eventKey, param) {
-    // add & remove update scenario UAVs
+    // get internal state
     let scenario = Object.assign({}, this.state.scenario);
-    scenario.uavs = param;
+    // UAV operations
+    switch (eventKey) {
+      case 'add':
+        scenario.uavs = param;
+        break;
+      case 'save':
+        console.log(param);
+        scenario.uavs[param.pos] = param.uav.UAV;
+        break;
+      case 'remove':
+        scenario.uavs = param;
+        break;
+      case 'delete':
+        scenario.uavs = param;
+        break;
+      default:
+        break;
+    }
+    // set state with the modified data
     this.setState({scenario});
   }
 
@@ -130,6 +151,7 @@ class App extends Component {
         <div className='sopplaNav'>
           <SopplaNav
             scenarioID={this.state.scenario._id}
+            uavs={this.state.scenario.uavs}
             onScenarioAction={(eventKey, param) => this.handleScenarioMenu(eventKey, param)}
             onUavAction={(eventKey, param) => this.handleUavMenu(eventKey, param)}
             onTargetAction={(target) => this.handleTargetMenu(target)}
@@ -150,6 +172,7 @@ class App extends Component {
           <ScenarioTabs
             scenarioID={this.state.scenario._id}
             scenarioUAVs={this.state.scenario.uavs}
+            onUavAction={(eventKey, param) => this.handleUavMenu(eventKey, param)}
             scenarioTargets={this.state.scenario.targets}
           />
         </div>

@@ -82,7 +82,7 @@ class UavForm extends Component {
             _id : this.props.selectedUAV._id,
             name : this.props.selectedUAV.name,
             type: this.props.selectedUAV.type,
-            modelType : this.props.selectedUAV.motionModel.model,
+            modelType : this.props.selectedUAV.motionModel.type,
             modelAt : this.props.selectedUAV.motionModel.at,
             initLatitude : this.props.selectedUAV.initState.latitude,
             initLongitude : this.props.selectedUAV.initState.longitude,
@@ -139,6 +139,7 @@ class UavForm extends Component {
       .then(data => {
         // if data is updated ok then lift up the UAV to be stored at app level
         this.props.onSave(data);
+        alert(`${this.state.name} saved`);
       })
     })
     .catch(err => console.log(err));
