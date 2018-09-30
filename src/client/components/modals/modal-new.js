@@ -30,15 +30,14 @@ class ModalNew extends Component {
 
 
   render () {
-    const needAddCheckbox = this.props.addCheckBox;
-    let checkBox;
 
+    let checkBox;
     // check if there is a need to include a checbox or not
-    if (needAddCheckbox) {
+    if (this.props.addCheckBox) {
       checkBox =
         <Checkbox id="add" onChange={this.handleChange}>
           Add to current Scenario
-        </Checkbox>;
+        </Checkbox>
     }
     return (
       <div id='modalNew'>

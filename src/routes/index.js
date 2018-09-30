@@ -55,7 +55,7 @@ api.post('/uavs/sensor', UAVCtrl.addUAVSensor);
 api.put('/uavs', UAVCtrl.updateUAV);
 api.put('/uavs/sensor', UAVCtrl.updateUAVSensor);
 api.delete('/uavs/:uavID', UAVCtrl.deleteUAV);
-api.delete('/uavs/:uavID/sensor/:sensorPos', UAVCtrl.deleteUAVSensor);
+api.delete('/uavs/sensor', UAVCtrl.deleteUAVSensor);
 
 // Environment Routing
 api.get('/environment', EnvCtrl.getEnvs);

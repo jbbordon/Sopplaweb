@@ -119,7 +119,7 @@ function addScenario (req, res) {
 		if (err) {
 			res.status(500).send({ message : 'Error while saving the Scenario in the DB'})
 		} else {
-			res.status(200).send(scenarioStored);
+			res.status(200).jsonp(scenarioStored);
 		}
 	});
 };
@@ -142,7 +142,7 @@ function addScenarioTarget (req, res) {
 				if (!scenario) {
 					res.status(404).send({ message : 'Scenario does not exist in the DB'});
 				} else {
-					res.status(200).send ({Scenario : scenario});
+					res.status(200).jsonp(scenario.targets);
 				}
 			}
 		}
@@ -167,7 +167,7 @@ function addScenarioUAV (req, res) {
 				if (!scenario) {
 					res.status(404).send({ message : 'Scenario does not exist in the DB'});
 				} else {
-					res.status(200).send (scenario.uavs);
+					res.status(200).jsonp(scenario.uavs);
 				}
 			}
 		}
@@ -225,7 +225,6 @@ function updateScenario (req, res) {
 	Scenario.findOneAndUpdate (
 		{'_id' : req.body._id},
 		{ $set : {
-			'name' : req.body.name,
 			'zone.latitude': req.body.latitude,
 			'zone.longitude': req.body.longitude,
 			'zone.xWidth': req.body.xWidth,
@@ -242,7 +241,7 @@ function updateScenario (req, res) {
 				if (!scenario) {
 					res.status(404).send({ message : 'Scenario does not exist in the DB'});
 				} else {
-					res.status(200).send(scenario);
+					res.status(200).jsonp(scenario.zone);
 				}
 			}
 		}
@@ -260,7 +259,7 @@ function deleteScenario (req, res) {
 			if (scenario.n == 0) {
 				res.status(404).send({ message : 'Scenario does not exist in the DB'});
 			} else {
-				res.status(200).send ({Scenario : scenario});
+				res.status(200).jsonp(scenario._id);
 			}
 		}
 	});

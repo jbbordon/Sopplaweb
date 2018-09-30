@@ -137,9 +137,9 @@ class UavForm extends Component {
       }
       res.json()
       .then(data => {
+        alert(`${this.state.name} saved`);
         // if data is updated ok then lift up the UAV to be stored at app level
         this.props.onSave(data);
-        alert(`${this.state.name} saved`);
       })
     })
     .catch(err => console.log(err));
@@ -168,8 +168,8 @@ class UavForm extends Component {
               onChange={this.handleInputChange}
               id="type"
               value={this.state.type}
+              placeholder="select"
               required>
-              <option value="none">Select</option>
               {this.renderSelect(this.props.uavTypes)}
             </FormControl>
           </InputGroup>
@@ -180,8 +180,8 @@ class UavForm extends Component {
               onChange={this.handleInputChange}
               id="modelType"
               value={this.state.modelType}
+              placeholder="select"
               required>
-              <option value="none">Select</option>
               {this.renderSelect(this.props.uavModels)}
             </FormControl>
           </InputGroup>
@@ -192,6 +192,7 @@ class UavForm extends Component {
               onChange={this.handleInputChange}
               id="modelAt"
               value={this.state.modelAt}
+              placeholder="Milisenconds"
               required/>
           </InputGroup>
         </FormGroup>

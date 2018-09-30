@@ -12,7 +12,6 @@ class ScenarioForm extends Component {
     super(props);
     // internal state
     this.state = {
-      name : '',
       latitude : '',
       longitude : '',
       xWidth : '',
@@ -31,7 +30,6 @@ class ScenarioForm extends Component {
   /* reset scenario-form to default data */
   resetForm () {
     this.setState({
-      name : this.props.name,
       latitude : '',
       longitude : '',
       xWidth : '',
@@ -44,14 +42,12 @@ class ScenarioForm extends Component {
 
   componentDidUpdate(prevProps) {
     if (this.props !== prevProps) {
+      // reset the form fields
+      this.resetForm();
       // check if the scenario area is already defined or not
-      if (!this.props.zone.latitude) {
-        // if scenario area is not yet defined then reset the form fields
-        this.resetForm();
-      } else {
+      if (this.props.zone.latitude) {
         // area is defined for current scenario so set the form fields
         this.setState ({
-          name : this.props.name,
           latitude : this.props.zone.latitude,
           longitude : this.props.zone.longitude,
           xWidth : this.props.zone.xWidth,
@@ -94,8 +90,8 @@ class ScenarioForm extends Component {
       res.json()
       .then(data => {
         // if data is saved lift up the scenario area to be updated at app lvl
-        this.props.onSave(data);
-        alert(`${this.state.name} saved`);
+        this.props.onZoneSave(data);
+        alert(`${this.props.name} saved`);
       })
     })
     .catch(err => console.log(err));
@@ -106,16 +102,6 @@ class ScenarioForm extends Component {
       <div className='scenarioForm'>
         <form onSubmit={this.handleSave}>
           <FormGroup bsSize="small" validationState={this.getValidationState()}>
-            <InputGroup>
-              <InputGroup.Addon>Name</InputGroup.Addon>
-              <FormControl
-                type="text"
-                onChange={this.handleInputChange}
-                id="name"
-                value={this.state.name}
-                placeholder="Text"
-                required/>
-            </InputGroup>
             <InputGroup>
               <InputGroup.Addon>Latitude</InputGroup.Addon>
               <FormControl

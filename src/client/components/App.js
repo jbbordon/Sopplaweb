@@ -2,18 +2,12 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 /* Components import */
-import SopplaNav from './navbar/soppla-bar.js'
-import ScenarioHeader from './scenario/scenario-header.js'
-import ScenarioForm from './scenario/scenario-form.js'
-import ScenarioTabs from './scenario/scenario-tabs.js'
+import TopMenu from './topmenu/top-menu.js'
+import SideBar from './sidebar/side-bar.js'
 /* Styles import */
-import 'cesium/Widgets/widgets.css';
 import '../style/app.css';
-/* Cesium import */
-import Cesium from 'cesium/Cesium';
-
-// cesium instance
-var viewer = new Cesium.Viewer('cesiumContainer');
+/* Scenario cesium scripts import */
+import CesiumScenario from '../scripts/cesium-scenario.js';
 
 class App extends Component {
 
@@ -83,12 +77,15 @@ class App extends Component {
         break;
       case 'load':
         this.setState({scenario : param});
+        // draw scenario on cesium map
+        CesiumScenario.drawScenario(param);
         break;
       case 'save':
         // get internal state
         let scenario = Object.assign({}, this.state.scenario);
-        scenario.name = param.name;
-        scenario.zone = param.zone;
+        scenario.zone = param;
+        // save it
+        this.setState({scenario});
         break;
       case 'delete':
         // check if scenario deleted is the current one
@@ -112,8 +109,7 @@ class App extends Component {
         scenario.uavs = param;
         break;
       case 'save':
-        console.log(param);
-        scenario.uavs[param.pos] = param.uav.UAV;
+        scenario.uavs[param.pos] = param.uav;
         break;
       case 'remove':
         scenario.uavs = param;
@@ -148,34 +144,19 @@ class App extends Component {
   render () {
     return (
       <div className='app'>
-        <div className='sopplaNav'>
-          <SopplaNav
-            scenarioID={this.state.scenario._id}
-            uavs={this.state.scenario.uavs}
-            onScenarioAction={(eventKey, param) => this.handleScenarioMenu(eventKey, param)}
-            onUavAction={(eventKey, param) => this.handleUavMenu(eventKey, param)}
-            onTargetAction={(target) => this.handleTargetMenu(target)}
-            onEnvAction={(env) => this.handleEnvMenu(env)}
-            onRequestAction={(request) => this.handleRequestMenu(request)}
-          />
-        </div>
-        <div className='scenario'>
-          <ScenarioHeader
-            scenario={this.state.scenario.name}
-          />
-          <ScenarioForm
-            name={this.state.scenario.name}
-            id={this.state.scenario._id}
-            zone={this.state.scenario.zone}
-            onSave={(scenario) => this.handleScenarioMenu('save', scenario)}
-          />
-          <ScenarioTabs
-            scenarioID={this.state.scenario._id}
-            scenarioUAVs={this.state.scenario.uavs}
-            onUavAction={(eventKey, param) => this.handleUavMenu(eventKey, param)}
-            scenarioTargets={this.state.scenario.targets}
-          />
-        </div>
+        <TopMenu
+          scenario={this.state.scenario}
+          onScenarioAction={(eventKey, param) => this.handleScenarioMenu(eventKey, param)}
+          onUavAction={(eventKey, param) => this.handleUavMenu(eventKey, param)}
+          onTargetAction={(target) => this.handleTargetMenu(target)}
+          onEnvAction={(env) => this.handleEnvMenu(env)}
+          onRequestAction={(request) => this.handleRequestMenu(request)}
+        />
+        <SideBar
+          scenario={this.state.scenario}
+          onScenarioAction={(eventKey, param) => this.handleScenarioMenu(eventKey, param)}
+          onUavAction={(eventKey, param) => this.handleUavMenu(eventKey, param)}
+        />
       </div>
     );
   }

@@ -4,7 +4,7 @@ import { render } from 'react-dom';
 /* React-Bootstrap components import */
 import { Navbar, Nav } from 'react-bootstrap';
 /* Styles import */
-import '../../style/navbar.css';
+import '../../style/topmenu.css';
 /* Components import */
 import ScenarioMenu from './scenario-menu.js';
 import TargetMenu from './target-menu.js';
@@ -12,7 +12,7 @@ import UavMenu from './uav-menu.js';
 import EnvMenu from './env-menu.js';
 import RequestMenu from './request-menu.js';
 
-class SopplaNav extends Component {
+class TopMenu extends Component {
 
   constructor (props) {
     super(props);
@@ -28,8 +28,8 @@ class SopplaNav extends Component {
             onAction={(eventKey, param) => this.props.onScenarioAction(eventKey, param)}
           />
           <UavMenu
-            scenario={this.props.scenarioID}
-            scenarioUAVs={this.props.uavs}
+            scenario={this.props.scenario._id}
+            scenarioUAVs={this.props.scenario.uavs}
             onAction={(eventKey, param) => this.props.onUavAction(eventKey, param)}
           />
           <TargetMenu
@@ -47,4 +47,4 @@ class SopplaNav extends Component {
   }
 }
 
-export default SopplaNav;
+export default TopMenu;
