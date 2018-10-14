@@ -22,20 +22,19 @@ class ScenarioMenu extends Component {
       showSave : false
     };
     //binding of methods
-    this.getScenarios = this.getScenarios.bind(this);
+    this.fetchScenarios = this.fetchScenarios.bind(this);
     this.handleNew = this.handleNew.bind(this);
     this.handleLoad = this.handleLoad.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
-    this.handleSave = this.handleSave.bind(this);
     this.handleScenarioMenu = this.handleScenarioMenu.bind(this);
   }
 
   /* Get the scenarioList of scenarios available in the server */
-  getScenarios () {
+  fetchScenarios () {
     fetch('/api/scenario')
     .then(res => {
       if (!res.ok) {
-        throw error (res.statusText);
+        alert(`${res.statusText}`);
       }
       res.json()
       .then(data => {
@@ -46,7 +45,12 @@ class ScenarioMenu extends Component {
     .catch(err => console.log(err))
   }
 
-  /* Handle new */
+  /* Lifecycle method called immediately after mount occurs */
+  componentDidMount() {
+    this.fetchScenarios();
+  }
+
+  /* Create a new scenario in the server */
   handleNew (scenario) {
     fetch('/api/scenario', {
       method: 'POST',
@@ -62,8 +66,9 @@ class ScenarioMenu extends Component {
       } else {
         res.json()
         .then(data => {
+          this.fetchScenarios();          
           this.props.onAction('new', data);
-          alert(`${scenario.name} created`);
+          alert(`${data.name} created`);
         })
       }
     })
@@ -83,7 +88,7 @@ class ScenarioMenu extends Component {
         .then(data => {
           // populate the scenario loaded
           this.props.onAction('load', data);
-          alert(`${scenario.name} loaded`);
+          alert(`${data.name} loaded`);
         })
       }
     })
@@ -104,33 +109,13 @@ class ScenarioMenu extends Component {
       if (!res.ok) {
         alert(`${res.statusText}`);
       } else {
+        this.fetchScenarios();        
         this.props.onAction('delete', scenario);
         alert(`${scenario.name} deleted`);
       }
     })
     .catch(err => console.log(err));
     this.setState({ showDelete : false });
-  }
-
-  /* Handle save */
-  handleSave () {
-    fetch('/api/scenario', {
-      method: 'PUT',
-      body: JSON.stringify(this.state.scenario),
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(res => {
-      if (!res.ok) {
-        alert(`${res.statusText}`);
-      } else {
-        alert(`${scenario.name} saved`);
-      }
-    })
-    .catch(err => console.log(err));
-    this.setState({ showSave : false });
   }
 
   /* Scenario Menu */
@@ -140,14 +125,9 @@ class ScenarioMenu extends Component {
         this.setState({ showNew: true });
         break;
       case 2: // Load
-        this.getScenarios();
         this.setState({ showLoad: true });
         break;
-      case 3: // Save
-        this.setState({ showSave: true});
-        break;
-      case 4: // Delete
-        this.getScenarios();
+      case 3: // Delete
         this.setState({ showDelete: true });
         break;
       default:
@@ -161,8 +141,7 @@ class ScenarioMenu extends Component {
         <NavDropdown title="Scenario">
           <MenuItem eventKey={1} onSelect={this.handleScenarioMenu}>New</MenuItem>
           <MenuItem eventKey={2} onSelect={this.handleScenarioMenu}>Load</MenuItem>
-          <MenuItem eventKey={3} onSelect={this.handleScenarioMenu}>Save</MenuItem>
-          <MenuItem eventKey={4} onSelect={this.handleScenarioMenu}>Delete</MenuItem>
+          <MenuItem eventKey={3} onSelect={this.handleScenarioMenu}>Delete</MenuItem>
         </NavDropdown>
         <ModalNew
           title="New Scenario"
@@ -184,14 +163,7 @@ class ScenarioMenu extends Component {
           onDelete={(scenario) => this.handleDelete(scenario)}
           onHide={() => this.setState({ showDelete : false })}
         />
-        <ModalSave
-          title="Save Scenario"
-          show={this.state.showSave}
-          onSave={() => this.handleSave()}
-          onHide={() => this.setState({ showSave : false })}
-        />
       </NavItem>
-
     );
   }
 }

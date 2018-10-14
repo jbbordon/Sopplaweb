@@ -39,7 +39,11 @@ class ModalDelete extends Component {
 
     const list = this.props.list.map(item => {
       return (
-        <ListGroupItem onClick={() => this.handleSelect(item)}>{item.name}</ListGroupItem>
+        <ListGroupItem
+          onClick={() => this.handleSelect(item)}
+          key={item._id}>
+            {item.name}
+        </ListGroupItem>
       );
     });
 

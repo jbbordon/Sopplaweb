@@ -66,7 +66,7 @@ function addUAV (req, res) {
 		if (err) {
 			res.status(500).send({ message : 'Error while saving the uav in the DB'});
 		} else {
-			res.status(200).send ({UAV : uavStored});
+			res.status(200).send({UAV : uavStored});
 		};
 	});
 };

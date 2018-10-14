@@ -16,14 +16,15 @@ class UavMenu extends Component {
     // internal state
     this.state = {
       uavList : [],
+      scenarioUAVs : [],
       showNew : false,
       showAdd : false,
       showRemove : false,
       showDelete : false
     };
     //binding of methods
-    this.getUAVs = this.getUAVs.bind(this);
-    this.getScenarioUAVs = this.getScenarioUAVs.bind(this);
+    this.fetchUAVs = this.fetchUAVs.bind(this);
+    this.fetchScenarioUAVs = this.fetchScenarioUAVs.bind(this);
     this.handleNew = this.handleNew.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
@@ -32,11 +33,11 @@ class UavMenu extends Component {
   }
 
   /* Get the list of uavs available in the server */
-  getUAVs () {
+  fetchUAVs () {
     fetch('/api/uavs')
     .then(res => {
       if (!res.ok) {
-        throw error (res.statusText);
+        alert(`${res.statusText}`);
       }
       res.json()
       .then(data => {
@@ -47,20 +48,33 @@ class UavMenu extends Component {
     .catch(err => console.log(err))
   }
 
-  /* Get the current scenario uavs  */
-  getScenarioUAVs () {
-    fetch('/api/scenario/uavs/' + this.props.scenario)
+  /* Get the current scenario uavs */
+  fetchScenarioUAVs () {
+    fetch('/api/scenario/uavs/' + this.props.scenarioID)
     .then(res => {
       if (!res.ok) {
-        throw error (res.statusText);
+        alert(`${res.statusText}`);
       }
       res.json()
       .then(data => {
-        //lift up the uavsList with the data received
-        this.props.onAction('delete', data);
+        //update the scenarioUAVs with the data received
+        this.setState({ scenarioUAVs: data })
       })
     })
     .catch(err => console.log(err))
+  }
+
+  /* Lifecycle method called immediately after mount occurs */
+  componentDidMount() {
+    this.fetchUAVs();
+  }
+
+  /* Lifecycle method called immediately after updating occurs */
+  componentDidUpdate(prevProps) {
+    if (this.props.scenarioID !== prevProps.scenarioID) {
+      // scenario has changed or reloded
+      this.fetchScenarioUAVs();
+    }
   }
 
   /* Handle new */
@@ -77,15 +91,8 @@ class UavMenu extends Component {
       if (!res.ok) {
         alert(`${res.statusText}`);
       } else {
-        if (uav.add) {
-          // the new uav must be added to the current scenario
-          res.json()
-          .then(data => {
-            this.handleAdd(data);
-          })
-        } else {
-          alert(`${uav.name} created`);
-        }
+        this.fetchUAVs();
+        alert(`${uav.name} created`);
       }
     })
     .catch(err => console.log(err));
@@ -96,10 +103,9 @@ class UavMenu extends Component {
   handleAdd (uav) {
     // build the data to be saved
     const req = {
-      scenarioID : this.props.scenario,
+      scenarioID : this.props.scenarioID,
       uav : {
-        _id: uav._id,
-        name: uav.ScenarioMenu
+        _id: uav._id
       }
     }
     // call the server to add the selected uav to the current scenario
@@ -115,11 +121,11 @@ class UavMenu extends Component {
       if (!res.ok) {
         alert(`${res.statusText}`);
       } else {
-        /* if add operation was ok the updated scenario uavList is returned
-        in a json format and must be converted into a js object */
         res.json()
         .then(data => {
-          // lift up the scenario uavList to be updated at the app level
+          // update scenarioUAVs with the data received
+          this.setState({scenarioUAVs : data});
+          // lift up the add operation
           this.props.onAction('add', data);
           alert(`${uav.name} added`);
         })
@@ -132,7 +138,7 @@ class UavMenu extends Component {
   /* Handle remove */
   handleRemove (uav) {
     // call the server to remove the selected uav from the current scenario
-    fetch('/api/scenario/' + this.props.scenario + '/uav/' + uav._id, {
+    fetch('/api/scenario/' + this.props.scenarioID + '/uav/' + uav._id, {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
@@ -141,16 +147,16 @@ class UavMenu extends Component {
     })
     .then(res => {
       if (!res.ok) {
-        throw error (res.statusText);
+        alert(`${res.statusText}`);
       } else {
-        /* if remove operation was ok the updated scenario uavList is returned
-        in a json format and must be converted into a js object */
         res.json()
         .then(data => {
-          // lift up the scenario uavList to be updated at the app level
+          // update scenarioUAVs with the data received
+          this.setState({scenarioUAVs : data});
+          // lift up the remove operation
           this.props.onAction('remove', data);
+          alert(`${uav.name} removed`);
         });
-        alert(`${uav.name} removed`);
       }
     })
     .catch(err => console.log(err));
@@ -169,12 +175,14 @@ class UavMenu extends Component {
     })
     .then(res => {
       if (!res.ok) {
-        throw error (res.statusText);
+        alert(`${res.statusText}`);
       } else {
-        /* retrieve scenario uavList just in case the uav deleted was part
-        of the scenario uavs */
-        this.getScenarioUAVs();
-        // lift up the uavList to be updated at the app level
+        this.fetchUAVs();
+        if (this.props.scenarioID !== "") {
+          this.fetchScenarioUAVs();
+        }
+        // lift up the remove operation
+        this.props.onAction('delete');
         alert(`${uav.name} deleted`);
       }
     })
@@ -189,14 +197,12 @@ class UavMenu extends Component {
         this.setState({ showNew: true });
         break;
       case 2.2: // Add
-        this.getUAVs();
         this.setState({ showAdd: true });
         break;
       case 2.3: // Remove
         this.setState({ showRemove: true});
         break;
       case 2.4: // Delete
-        this.getUAVs();
         this.setState({ showDelete: true });
         break;
       default:
@@ -205,12 +211,19 @@ class UavMenu extends Component {
   }
 
   render () {
+
+    /*check there is a current scenario to enable remove & add operations */
+    let disable = true;
+    if (this.props.scenarioID !== "") {
+      disable = false;
+    }
+
     return (
       <NavItem>
         <NavDropdown eventKey={2} title="UAV">
           <MenuItem eventKey={2.1} onSelect={this.handleMenu}>New</MenuItem>
-          <MenuItem eventKey={2.2} onSelect={this.handleMenu}>Add</MenuItem>
-          <MenuItem eventKey={2.3} onSelect={this.handleMenu}>Remove</MenuItem>
+          <MenuItem disabled={disable} eventKey={2.2} onSelect={this.handleMenu}>Add</MenuItem>
+          <MenuItem disabled={disable} eventKey={2.3} onSelect={this.handleMenu}>Remove</MenuItem>
           <MenuItem eventKey={2.4} onSelect={this.handleMenu}>Delete</MenuItem>
         </NavDropdown>
         <ModalNew
@@ -230,7 +243,7 @@ class UavMenu extends Component {
         <ModalRemove
           title="Remove UAV"
           show={this.state.showRemove}
-          list={this.props.scenarioUAVs}
+          list={this.state.scenarioUAVs}
           onRemove={(uav) => this.handleRemove(uav)}
           onHide={() => this.setState({ showRemove : false })}
         />

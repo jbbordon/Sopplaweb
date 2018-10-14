@@ -10,7 +10,7 @@ const UAV  = require ('../models/uav');
 function getScenario (req, res) {
 	console.log ('GET /scenario/:scenarioID');
 	Scenario.findById(req.params.scenarioID).
-	populate('uavs targets').
+	populate('uavs targets', 'name _id').
 	exec(function(err, scenario) {
 		if (err) {
 	  	res.status(500).send({ message : 'Error while retrieving the Scenario from the DB'})
@@ -19,6 +19,23 @@ function getScenario (req, res) {
 	    	res.status(404).send({ message : 'Scenario does not exist in the DB'});
 	    } else {
 	    	res.status(200).jsonp(scenario);
+	    }
+	  }
+	});
+};
+
+/* Find an scenario in the DB */
+function getScenarioZone (req, res) {
+	console.log ('GET /scenario/zone/:scenarioID');
+	Scenario.findById(req.params.scenarioID).
+	exec(function(err, scenario) {
+		if (err) {
+	  	res.status(500).send({ message : 'Error while retrieving the Scenario from the DB'})
+	  } else {
+	    if (!scenario) {
+	    	res.status(404).send({ message : 'Scenario does not exist in the DB'});
+	    } else {
+	    	res.status(200).jsonp(scenario.zone);
 	    }
 	  }
 	});
@@ -50,7 +67,7 @@ function getScenarioTargets (req, res) {
 	    	res.status(500).send({ message : 'Error while retrieving the scenario uav list from the DB'});
 	    } else {
 	    	if (!list) {
-	    		res.status(404).send({ message : 'Error there is no uav defined for the given scenario'});
+	    		res.status(404).send({ message : 'Error there are no uavs defined for the given scenario'});
 	    	} else {
 				res.status(200).jsonp(list.targets);
 	    	}
@@ -62,13 +79,13 @@ function getScenarioTargets (req, res) {
 function getScenarioUAVs (req, res) {
 	console.log ('GET /scenario/uavs/:scenarioID');
 	Scenario.findOne({"_id": req.params.scenarioID}).
-	populate('uavs').
+	populate('uavs', 'name _id').
 	exec(function(err, list) {
 	    if(err) {
 	    	res.status(500).send({ message : 'Error while retrieving the scenario uav list from the DB'});
 	    } else {
 	    	if (!list) {
-	    		res.status(404).send({ message : 'Error there is no uav defined for the given scenario'});
+	    		res.status(404).send({ message : 'Error there are no uavs defined for the given scenario'});
 	    	} else {
 				res.status(200).jsonp(list.uavs);
 	    	}
@@ -159,7 +176,7 @@ function addScenarioUAV (req, res) {
 			'uavs': req.body.uav}
 		},
 		{new : true}).
-		populate('uavs').
+		populate('uavs', 'name _id').
 		exec(function (err, scenario) {
 			if (err){
 				res.status(500).send({ message : 'Error while adding the uav to the Scenario in the DB'});
@@ -361,6 +378,7 @@ function deleteScenarioRequest (req, res) {
 
 module.exports = {
 	getScenario,
+	getScenarioZone,
 	getScenarios,
 	getScenarioTargets,
 	getScenarioUAVs,

@@ -12,39 +12,33 @@ import UavMenu from './uav-menu.js';
 import EnvMenu from './env-menu.js';
 import RequestMenu from './request-menu.js';
 
-class TopMenu extends Component {
-
-  constructor (props) {
-    super(props);
-    // internal state
-    //binding of methods
-  }
-
-  render () {
-    return (
-      <Navbar>
-        <Nav pullRight>
-          <ScenarioMenu
-            onAction={(eventKey, param) => this.props.onScenarioAction(eventKey, param)}
-          />
-          <UavMenu
-            scenario={this.props.scenario._id}
-            scenarioUAVs={this.props.scenario.uavs}
-            onAction={(eventKey, param) => this.props.onUavAction(eventKey, param)}
-          />
-          <TargetMenu
-            onAction={(eventKey, target) => this.props.onTargetAction(eventKey, target)}
-          />
-          <EnvMenu
-            onAction={(eventKey, env) => this.props.onEnvAction(eventKey, env)}
-          />
-          <RequestMenu
-            onAction={(eventKey, request) => this.props.onRequestAction(eventKey, request)}
-          />
-        </Nav>
-      </Navbar>
-    );
-  }
+function TopMenu (props) {
+  /* Render TopMenu component */
+  return (
+    <Navbar>
+      <Nav pullRight>
+        <ScenarioMenu
+          onAction={(eventKey, param) => props.onMenuAction('scenario', eventKey, param)}
+        />
+        <UavMenu
+          scenarioID={props.scenario._id}
+          onAction={(eventKey, param) => props.onMenuAction('uavs', eventKey, param)}
+        />
+        <TargetMenu
+          scenarioID={props.scenario._id}      
+          onAction={(eventKey, param) => props.onMenuAction('targets', eventKey, param)}
+        />
+        <EnvMenu
+          scenarioID={props.scenario._id}          
+          onAction={(eventKey, param) => props.onMenuAction('environment', eventKey, param)}
+        />
+        <RequestMenu
+          scenarioID={props.scenario._id}          
+          onAction={(eventKey, param) => props.onMenuAction('request', eventKey, param)}
+        />
+      </Nav>
+    </Navbar>
+  );
 }
 
 export default TopMenu;

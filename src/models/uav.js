@@ -12,17 +12,7 @@ const UAVSchema = new Schema ({
 		at : Number	// control signal time
 	},
 	sensor : [ // array from 1 to n sensors
-		{
-			name :  String,
-			type : { type: String, enum: config.uavSensors },  // sensor type ej: radar, óptico, ir...
-			controlAt : Number, // control signal time
-			captureAt : Number,  // capture signal time
-			initState : {
-				elevation : { type: Number, min: 0, max: 90 },
-				azimuth   : { type: Number, min: 0, max: 360 },
-				params    : [ Number ] // 1 to n control parameter values
-			}
-		},
+		{ type: mongoose.Schema.Types.ObjectId, ref: 'Sensor' }
 	],
 	initTime  : Number, // seconds since start of mission
 	initState : {

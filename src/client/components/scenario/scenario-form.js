@@ -5,6 +5,8 @@ import { render } from 'react-dom';
 import { FormGroup, InputGroup, FormControl, Button } from 'react-bootstrap';
 /* Styles import */
 import '../../style/scenario.css';
+/* Scenario cesium scripts import */
+import CesiumScenario from '../../scripts/cesium-scenario.js';
 
 class ScenarioForm extends Component {
 
@@ -29,7 +31,7 @@ class ScenarioForm extends Component {
 
   /* reset scenario-form to default data */
   resetForm () {
-    this.setState({
+    return {
       latitude : '',
       longitude : '',
       xWidth : '',
@@ -37,17 +39,18 @@ class ScenarioForm extends Component {
       xCells: '',
       yCells: '',
       areaBearing: ''
-    });
+    };
   }
 
+  /* Lifecycle method called immediately after updating occurs */
   componentDidUpdate(prevProps) {
     if (this.props !== prevProps) {
       // reset the form fields
-      this.resetForm();
+      let newState = this.resetForm();
       // check if the scenario area is already defined or not
       if (this.props.zone.latitude) {
         // area is defined for current scenario so set the form fields
-        this.setState ({
+        newState = {
           latitude : this.props.zone.latitude,
           longitude : this.props.zone.longitude,
           xWidth : this.props.zone.xWidth,
@@ -55,8 +58,9 @@ class ScenarioForm extends Component {
           xCells: this.props.zone.xCells,
           yCells: this.props.zone.yCells,
           areaBearing: this.props.zone.areaBearing
-        })
+        }
       }
+      this.setState(newState);
     }
   }
 
@@ -64,20 +68,22 @@ class ScenarioForm extends Component {
     return null;
   }
 
+  /* Handle input of data into de form fields */
   handleInputChange(event) {
     const {value, id} = event.target;
     this.setState({[id]: value});
   }
 
+  /* Handle save button */
   handleSave(event) {
     event.preventDefault();
     // build the data to save
-    var scenario = this.state;
-    scenario._id = this.props.id;
+    var zone = this.state;
+    zone._id = this.props.id;
     //send the server the PUT request with the new data
     fetch('/api/scenario', {
       method: 'PUT',
-      body: JSON.stringify(scenario),
+      body: JSON.stringify(zone),
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -85,14 +91,14 @@ class ScenarioForm extends Component {
     })
     .then(res => {
       if (!res.ok) {
-        throw error (res.statusText);
+        alert(`${res.statusText}`);
+      } else {
+        res.json()
+        .then(data => {
+          CesiumScenario.paintZone(data, this.props.name);
+          alert(`${this.props.name} saved`);
+        })
       }
-      res.json()
-      .then(data => {
-        // if data is saved lift up the scenario area to be updated at app lvl
-        this.props.onZoneSave(data);
-        alert(`${this.props.name} saved`);
-      })
     })
     .catch(err => console.log(err));
   }

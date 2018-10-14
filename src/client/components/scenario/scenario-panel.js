@@ -6,8 +6,6 @@ import { Panel } from 'react-bootstrap';
 import ScenarioForm from './scenario-form.js';
 /* Styles import */
 import '../../style/scenario.css';
-/* Scenario cesium scripts import */
-import CesiumScenario from '../../scripts/cesium-scenario.js';
 
 function ScenarioPanel (props) {
   /* Render ScenarioPanel component */
@@ -25,10 +23,6 @@ function ScenarioPanel (props) {
               id={props.scenarioID}
               name={props.scenarioName}
               zone={props.scenarioZone}
-              onZoneSave={(scenario) => {
-                props.onScenarioAction(scenario);
-                CesiumScenario.paintZone(scenario, props.scenarioName)}
-              }
             />
           </Panel.Body>
         </Panel.Collapse>

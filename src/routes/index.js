@@ -7,11 +7,13 @@ const api     = express.Router();
 const ScenarioCtrl = require ('../controllers/scenario');
 const TargetCtrl   = require ('../controllers/target');
 const UAVCtrl      = require ('../controllers/uav');
+const SensorCtrl   = require ('../controllers/sensor');
 const EnvCtrl      = require ('../controllers/environment');
 const ReqCtrl      = require ('../controllers/request');
 
 // Scenarios Routing
 api.get('/scenario/:scenarioID', ScenarioCtrl.getScenario);
+api.get('/scenario/zone/:scenarioID', ScenarioCtrl.getScenarioZone);
 api.get('/scenario', ScenarioCtrl.getScenarios);
 api.get('/scenario/targets/:scenarioID', ScenarioCtrl.getScenarioTargets);
 api.get('/scenario/uavs/:scenarioID', ScenarioCtrl.getScenarioUAVs);
@@ -56,6 +58,14 @@ api.put('/uavs', UAVCtrl.updateUAV);
 api.put('/uavs/sensor', UAVCtrl.updateUAVSensor);
 api.delete('/uavs/:uavID', UAVCtrl.deleteUAV);
 api.delete('/uavs/sensor', UAVCtrl.deleteUAVSensor);
+
+// Sensors Routing
+api.get('/sensors/types', SensorCtrl.getSensorTypes);
+api.get('/sensors', SensorCtrl.getSensors);
+api.get('/sensors/:sensorID', SensorCtrl.getSensor);
+api.post('/sensors', SensorCtrl.addSensor);
+api.put('/sensors', SensorCtrl.updateSensor);
+api.delete('/sensors/:sensorID', SensorCtrl.deleteSensor);
 
 // Environment Routing
 api.get('/environment', EnvCtrl.getEnvs);

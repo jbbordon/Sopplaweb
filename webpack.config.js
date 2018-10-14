@@ -12,6 +12,8 @@ const cesiumSource = 'node_modules/cesium/Source';
 const cesiumWorkers = '../Build/Cesium/Workers';
 
 module.exports = {
+  mode: 'development',
+  devtool: 'eval',
   entry: './src/client/index.js',
   output: {
     path: path.resolve(__dirname, 'src/public'),
@@ -69,6 +71,9 @@ module.exports = {
     ]
   },
   plugins: [
+    new webpack.NamedModulesPlugin(),
+    new webpack.NamedChunksPlugin(),
+    new webpack.DefinePlugin({ "process.env.NODE_ENV": JSON.stringify("development") }),
     new htmlWebpackPlugin({
       template: './src/public/index.html'
     }),

@@ -1,11 +1,10 @@
 /* Modules import */
 import React, { Component } from 'react';
 /* Bootstrap components import */
-import { Panel } from 'react-bootstrap';
+import { PanelGroup, Panel } from 'react-bootstrap';
 /* Components import */
-import UavSelector from './uav-selector.js';
 import UavForm from './uav-form.js';
-import SensorPanel from '../sensors/sensor-panel.js'
+import SensorPanelGroup from '../sensors/sensor-panel-group.js';
 /* Styles import */
 import '../../style/uav.css';
 /* UAV cesium scripts import */
@@ -17,136 +16,101 @@ class UavPanel extends Component {
     super(props);
     // internal state
     this.state = {
-      uavTypes : [],
-      uavModels : [],
-      selectedValue : 0,
-      selectedUAV : null,
-      uavSensors : []
+      uav : null,
     }
     //binding of methods
-    this.handleSelect = this.handleSelect.bind(this);
+    this.fetchUAV = this.fetchUAV.bind(this);
     this.handleSave = this.handleSave.bind(this);
-    this.handleSa = this.handleSave.bind(this);
   }
 
-  /* Class method called when component is mounted */
+  /* Get a uav from the server */
+  fetchUAV (uavID) {
+    fetch('/api/uavs/' + uavID)
+    .then(res => {
+      if (!res.ok) {
+        alert(`${res.statusText}`);
+      }
+      res.json()
+      .then(data => {
+        // setup state with the data received
+        this.setState({uav : data});
+        // paint the UAV on Cesium if it's already defined
+        if (data.type) {
+          CesiumUavs.paintUAV(data);
+        }
+      })
+    })
+    .catch(err => console.log(err))
+  }
+
+  /* Lifecycle method called immediately after mount occurs */
   componentDidMount() {
-    /* Call the server to get the uav types available */
-    fetch('/api/uavs/types')
-    .then(res => {
-      if (!res.ok) {
-        throw error (res.statusText);
-      }
-      res.json()
-      .then(data => {
-        //update the uavTypes list with the data received
-        this.setState({ uavTypes: data })
-      })
-    })
-    .catch(err => console.log(err))
-    /* Call the server to get the uav models available */
-    fetch('/api/uavs/models')
-    .then(res => {
-      if (!res.ok) {
-        throw error (res.statusText);
-      }
-      res.json()
-      .then(data => {
-        //update the uavModels list with the data received
-        this.setState({ uavModels: data })
-      })
-    })
-    .catch(err => console.log(err))
+    this.fetchUAV(this.props.eventKey);
   }
 
-  /* Class method called when props have changed */
+  /* Lifecycle method called immediately after updating occurs
   componentDidUpdate(prevProps) {
-    if (this.props !== prevProps)  {
-      // check if scenario has at least 1 UAV
-      if (this.props.scenarioUAVs.length !== 0) {
-        // select the first uav in the list
-        this.setState ({
-          selectedValue : 0,
-          selectedUAV : this.props.scenarioUAVs[0],
-          uavSensors : this.props.scenarioUAVs[0].sensor
-        })
-      } else {
-        // reset state
-        this.setState ({
-          selectedValue : 0,
-          selectedUAV : null,
-          uavSensors :[]
-        })
+    console.log("llamado");
+    console.log(this.props.eventKey);
+    console.log(prevProps.eventKey);
+    if (this.props.eventKey !== prevProps.eventKey) {
+      // scenario has changed or reloded
+      this.fetchUAV(this.props.eventKey);
+    }
+  } */
+
+  /* Save a uav in the server */
+  handleSave(uav) {
+    //send the server the PUT request with the new data
+    fetch('/api/uavs', {
+      method: 'PUT',
+      body: JSON.stringify(uav),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
       }
-    }
-  }
-
-  handleSelect(value) {
-    // get selected uav from the scenario uavs list
-    const uav = this.props.scenarioUAVs[value];
-    const sensors = this.props.scenarioUAVs[value].sensor;
-    // update internal state with the required UAV
-    this.setState({
-      selectedValue : value,
-      selectedUAV : uav,
-      uavSensors : sensors
-    });
-  }
-
-  handleSave (uav) {
-    const param = {
-      pos : this.state.selectedValue,
-      uav : uav
-    }
-    CesiumUavs.paintUAV(uav);
-    this.props.onUavSave(param);
-  }
-
-  handleSensorAction (eventKey, param) {
-    switch (eventKey) {
-      case 'new':
-        this.setState({uavSensors : param});
-        break;
-      case 'save':
-        let sensorsArray = Object.assign({}, this.state.uavSensors);
-        sensorsArray[param.selectedSensor] = param.sensor;
-        this.setState({uavSensors : sensorsArray});
-        break;
-      case 'remove':
-        this.setState({uavSensors : param});
-        break;
-      default:
-        break;
-    }
+    })
+    .then(res => {
+      if (!res.ok) {
+        alert(`${res.statusText}`);
+      }
+      res.json()
+      .then(data => {
+        alert(`${data.name} saved`);
+        // paint the UAV on Cesium
+        CesiumUavs.paintUAV(data);
+      })
+    })
+    .catch(err => console.log(err));
   }
 
   /* Render UavPanel component */
   render () {
+
+    let sensorArray = [];
+    if (this.state.uav !== null) {
+      sensorArray = this.state.uav.sensor;
+    }
+
     return (
-      <Panel>
+      <Panel eventKey={this.props.eventKey}>
         <Panel.Heading>
           <Panel.Title toggle>
-            UAVs
+            {this.props.uavName}
           </Panel.Title>
         </Panel.Heading>
         <Panel.Collapse>
           <Panel.Body>
-            <UavSelector
-              selectedValue={this.state.selectedValue}
-              scenarioUAVs={this.props.scenarioUAVs}
-              onSelect={(value) => this.handleSelect(value)}
-            />
             <UavForm
-              uavTypes={this.state.uavTypes}
-              uavModels={this.state.uavModels}
-              selectedUAV={this.state.selectedUAV}
+              uav={this.state.uav}
               onSave={(uav) => this.handleSave(uav)}
             />
-            <SensorPanel
-              selectedUAV={this.state.selectedUAV}
-              uavSensors={this.state.uavSensors}
-              onAction={(eventKey, param) => this.handleSensorAction(eventKey, param)}
-            />
+            <PanelGroup>
+              <SensorPanelGroup
+                uavID={this.props.eventKey}
+                uavSensors={sensorArray}
+              />
+            </PanelGroup>
           </Panel.Body>
         </Panel.Collapse>
       </Panel>

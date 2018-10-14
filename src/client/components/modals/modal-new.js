@@ -7,38 +7,29 @@ class ModalNew extends Component {
 
   constructor(props) {
     super(props);
-
+    // internal state
     this.state = {
       name : "",
       add : false
     }
-
+    //binding of methods
     this.handleNew = this.handleNew.bind(this);
     this.handleChange = this.handleChange.bind(this);
-
   }
 
+  /* Handles the button press */
   handleNew() {
     this.props.onNew(this.state);
   }
 
-
+  /* Handle form inputs */
   handleChange (event) {
     const {value, id} = event.target;
     this.setState({[id]: value});
   }
 
-
+  /* Render component */
   render () {
-
-    let checkBox;
-    // check if there is a need to include a checbox or not
-    if (this.props.addCheckBox) {
-      checkBox =
-        <Checkbox id="add" onChange={this.handleChange}>
-          Add to current Scenario
-        </Checkbox>
-    }
     return (
       <div id='modalNew'>
         <Modal {...this.props}>
@@ -49,7 +40,6 @@ class ModalNew extends Component {
           <Form inline>
             <FormGroup>
               <FormControl type="text" id="name" placeholder="name" onChange={this.handleChange}/>
-              {checkBox}
             </FormGroup>
           </Form>
           </Modal.Body>

@@ -23,8 +23,8 @@ class TargetMenu extends Component {
       showDelete : false
     };
     //binding of methods
-    this.getTargets = this.getTargets.bind(this);
-    this.getScenarioTargets = this.getScenarioTargets.bind(this);
+    this.fetchTargets = this.fetchTargets.bind(this);
+    this.fetchScenarioTargets = this.fetchScenarioTargets.bind(this);
     this.handleNew = this.handleNew.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
@@ -33,11 +33,11 @@ class TargetMenu extends Component {
   }
 
   /* Get the list of targets available in the server */
-  getTargets () {
+  fetchTargets () {
     fetch('/api/targets')
     .then(res => {
       if (!res.ok) {
-        throw error (res.statusText);
+        alert(`${res.statusText}`);
       }
       res.json()
       .then(data => {
@@ -48,21 +48,33 @@ class TargetMenu extends Component {
     .catch(err => console.log(err))
   }
 
-  /* Get the current scenario targets  */
-  getScenarioTargets () {
-    fetch('/api/scenario/targets/' + this.props.scenario)
+  /* Get the current scenario targets */
+  fetchScenarioTargets () {
+    fetch('/api/scenario/targets/' + this.props.scenarioID)
     .then(res => {
       if (!res.ok) {
-        throw error (res.statusText);
+        alert(`${res.statusText}`);
       }
       res.json()
       .then(data => {
-        console.log(data);
-        //update the targetsList with the data received
+        //update the scenarioTargets with the data received
         this.setState({ scenarioTargets: data })
       })
     })
     .catch(err => console.log(err))
+  }
+
+  /* Lifecycle method called immediately after mount occurs */
+  componentDidMount() {
+    this.fetchTargets();
+  }
+
+  /* Lifecycle method called immediately after updating occurs */
+  componentDidUpdate(prevProps) {
+    if (this.props.scenarioID !== prevProps.scenarioID) {
+      // scenario has changed or reloded
+      this.fetchScenarioTargets();
+    }
   }
 
   /* Handle new */
@@ -79,15 +91,8 @@ class TargetMenu extends Component {
       if (!res.ok) {
         alert(`${res.statusText}`);
       } else {
-        if (target.add) {
-          // the new target must be added to the current scenario
-          res.json()
-          .then(data => {
-            this.handleAdd(data);
-          })
-        } else {
-          alert(`${target.name} created`);
-        }
+        this.fetchTargets();
+        alert(`${target.name} created`);
       }
     })
     .catch(err => console.log(err));
@@ -98,10 +103,9 @@ class TargetMenu extends Component {
   handleAdd (target) {
     // build the data to be saved
     const req = {
-      scenarioID : this.props.scenario,
+      scenarioID : this.props.scenarioID,
       target : {
-        _id: target._id,
-        name: target.ScenarioMenu
+        _id: target._id
       }
     }
     // call the server to add the selected target to the current scenario
@@ -116,13 +120,16 @@ class TargetMenu extends Component {
     .then(res => {
       if (!res.ok) {
         alert(`${res.statusText}`);
+      } else {
+        res.json()
+        .then(data => {
+          // update scenarioTargets with the data received
+          this.setState({scenarioTargets : data});
+          // lift up the add operation
+          this.props.onAction('add', data);
+          alert(`${target.name} added`);
+        })
       }
-      res.json()
-      .then(data => {
-        // lift up the scenario targetList to be updated at the app level
-        this.props.onAction(data);
-        alert(`${target.name} added`);
-      })
     })
     .catch(err => console.log(err));
     this.setState({ showAdd : false });
@@ -131,7 +138,7 @@ class TargetMenu extends Component {
   /* Handle remove */
   handleRemove (target) {
     // call the server to remove the selected target from the current scenario
-    fetch('/api/scenario/' + this.props.scenario + '/target/' + target._id, {
+    fetch('/api/scenario/' + this.props.scenarioID + '/target/' + target._id, {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
@@ -140,14 +147,16 @@ class TargetMenu extends Component {
     })
     .then(res => {
       if (!res.ok) {
-        throw error (res.statusText);
+        alert(`${res.statusText}`);
       } else {
         res.json()
         .then(data => {
-          // lift up the scenario targetList to be updated at the app level
-          this.props.onAction(data);
+          // update scenarioTargets with the data received
+          this.setState({scenarioTargets : data});
+          // lift up the remove operation
+          this.props.onAction('remove', data);
+          alert(`${target.name} removed`);
         });
-        alert(`${target.name} removed`);
       }
     })
     .catch(err => console.log(err));
@@ -166,12 +175,14 @@ class TargetMenu extends Component {
     })
     .then(res => {
       if (!res.ok) {
-        throw error (res.statusText);
+        alert(`${res.statusText}`);
       } else {
-        // retrieve scenario targetList
-        getScenarioTargets();
-        // lift up the targetList to be updated at the app level
-        this.props.onAction(target);
+        this.fetchTargets();
+        if (this.props.scenarioID !== "") {
+          this.fetchScenarioTargets();
+        }
+        // lift up the remove operation
+        this.props.onAction('delete');
         alert(`${target.name} deleted`);
       }
     })
@@ -182,19 +193,16 @@ class TargetMenu extends Component {
   /* Target Menu */
   handleMenu (eventKey) {
     switch (eventKey) {
-      case 2.1: // New
+      case 3.1: // New
         this.setState({ showNew: true });
         break;
-      case 2.2: // Add
-        this.getTargets();
+      case 3.2: // Add
         this.setState({ showAdd: true });
         break;
-      case 2.3: // Remove
-        this.getScenarioTargets();
+      case 3.3: // Remove
         this.setState({ showRemove: true});
         break;
-      case 2.4: // Delete
-        this.getTargets();
+      case 3.4: // Delete
         this.setState({ showDelete: true });
         break;
       default:
@@ -203,12 +211,19 @@ class TargetMenu extends Component {
   }
 
   render () {
+
+    /*check there is a current scenario to enable remove & add operations */
+    let disable = true;
+    if (this.props.scenarioID !== "") {
+      disable = false;
+    }
+
     return (
       <NavItem>
         <NavDropdown eventKey={3} title="Target">
           <MenuItem eventKey={3.1} onSelect={this.handleMenu}>New</MenuItem>
-          <MenuItem eventKey={3.2} onSelect={this.handleMenu}>Add</MenuItem>
-          <MenuItem eventKey={3.3} onSelect={this.handleMenu}>Remove</MenuItem>
+          <MenuItem disabled={disable} eventKey={3.2} onSelect={this.handleMenu}>Add</MenuItem>
+          <MenuItem disabled={disable} eventKey={3.3} onSelect={this.handleMenu}>Remove</MenuItem>
           <MenuItem eventKey={3.4} onSelect={this.handleMenu}>Delete</MenuItem>
         </NavDropdown>
         <ModalNew
@@ -245,3 +260,4 @@ class TargetMenu extends Component {
 }
 
 export default TargetMenu;
+

@@ -7,7 +7,7 @@ function ScenarioHeader (props) {
   return (
     <div id="header">
       <h3> SopplaWeb </h3>
-      <h4> Scenario : {props.scenario} </h4>
+      <h4> Scenario : {props.scenarioName} </h4>
     </div>
   );
 }

@@ -19,29 +19,25 @@ class App extends Component {
       scenario : {
         _id : "",
         name : "Default",
-        zone : {
-          latitude : "",
-          longitude : "",
-          xWidth : "",
-          yHeight: "",
-          areaBearing: "",
-          xCells: "",
-          yCells: "",
-        },
         uavs : [],
         targets : [],
-        environment : {
-          _id : ""
-        }
+        environment : ""
       }
     }
     //binding of methods
     this.resetScenario = this.resetScenario.bind(this);
+    this.handleTopMenu = this.handleTopMenu.bind(this);
     this.handleScenarioMenu = this.handleScenarioMenu.bind(this);
     this.handleUavMenu = this.handleUavMenu.bind(this);
     this.handleTargetMenu = this.handleTargetMenu.bind(this);
     this.handleEnvMenu = this.handleEnvMenu.bind(this);
     this.handleRequestMenu = this.handleRequestMenu.bind(this);
+    this.handleSideBar = this.handleSideBar.bind(this);
+    this.handleScenarioComp = this.handleScenarioComp.bind(this);
+    this.handleUavComp = this.handleUavComp.bind(this);
+    this.handleTargetComp = this.handleTargetComp.bind(this);
+    this.handleEnvComp = this.handleEnvComp.bind(this);
+    this.handleRequestComp = this.handleRequestComp.bind(this);
   }
 
   /* reset current scenario to default data */
@@ -50,86 +46,60 @@ class App extends Component {
       scenario : {
         _id : "",
         name : "Default",
-          zone : {
-            latitude : "",
-            longitude : "",
-            xWidth : "",
-            yHeight: "",
-            areaBearing: "",
-            xCells: "",
-            yCells: "",
-          },
+        zone : "",
         uavs : [],
         targets : [],
-        environment : {
-          _id : ""
-        }
+        environment : ""
       }
     });
   }
 
-  /* Handles Scenario menu */
-  handleScenarioMenu (eventKey, param) {
-    // new, load, save update scenario data
-    switch (eventKey) {
-      case 'new':
-        this.setState({scenario : param});
+  /* Handles Top menu */
+  handleTopMenu (menu, eventKey, param) {
+    switch (menu) {
+      case 'scenario':
+        this.handleScenarioMenu(eventKey, param);
         break;
-      case 'load':
-        this.setState({scenario : param});
-        // draw scenario on cesium map
-        CesiumScenario.drawScenario(param);
+      case 'uavs':
+        this.handleUavMenu(eventKey, param);
         break;
-      case 'save':
-        // get internal state
-        let scenario = Object.assign({}, this.state.scenario);
-        scenario.zone = param;
-        // save it
-        this.setState({scenario});
+      case 'targets':
+        this.handleTargetMenu(eventKey, param);
         break;
-      case 'delete':
-        // check if scenario deleted is the current one
-        if (this.state.scenario._id == param._id) {
-          // reset scenario data
-          this.resetScenario();
-        }
+      case 'environment':
+        this.handleEnvMenu(eventKey, param);
+        break;
+      case 'request':
+        this.handleRequestMenu(eventKey, param);
         break;
       default:
         break;
+    }
+  }
+
+  /* Handles Scenario menu */
+  handleScenarioMenu (eventKey, param) {
+    if (eventKey == 'delete') {
+      // reset scenario data
+      this.resetScenario();
+    } else {
+      let newScenario = Object.assign({}, this.state.scenario, param);
+      this.setState({scenario : newScenario});
     }
   }
 
   /* Handles UAVs menu */
   handleUavMenu (eventKey, param) {
-    // get internal state
-    let scenario = Object.assign({}, this.state.scenario);
-    // UAV operations
-    switch (eventKey) {
-      case 'add':
-        scenario.uavs = param;
-        break;
-      case 'save':
-        scenario.uavs[param.pos] = param.uav;
-        break;
-      case 'remove':
-        scenario.uavs = param;
-        break;
-      case 'delete':
-        scenario.uavs = param;
-        break;
-      default:
-        break;
-    }
-    // set state with the modified data
-    this.setState({scenario});
+    let newScenario = Object.assign({}, this.state.scenario);
+    newScenario.uavs = param;
+    this.setState({scenario : newScenario});
   }
 
   /* Handles Target menu */
   handleTargetMenu (eventKey, param) {
-    // add, remove & delete update scenario targets
-    let scenario = Object.assign({}, this.state.scenario);
-    scenario.targets = param;
-    this.setState({scenario});
+    let newScenario = Object.assign({}, this.state.scenario);
+    newScenario.targets = param;
+    this.setState({scenario : newScenario});
   }
 
   /* Handles Environment menu */
@@ -140,22 +110,66 @@ class App extends Component {
   handleRequestMenu (eventKey, request) {
   }
 
+  /* Handles ring back of a component that has been requested to update */
+  handleSideBar (component, eventKey, param) {
+    switch (component) {
+      case 'scenario':
+        this.handleScenarioComp(eventKey, param);
+        break;
+      case 'uavs':
+        this.handleUavComp(eventKey, param);
+        break;
+      case 'targets':
+        this.handleTargetComp(eventKey, param);
+        break;
+      case 'environment':
+        this.handleEnvComp(eventKey, param);
+        break;
+      case 'request':
+        this.handleRequestComp(eventKey, param);
+        break;
+      default:
+        break;
+    }
+  }
+
+  /* Handles Scenario sidebar component */
+  handleScenarioComp (eventKey, param) {
+  }
+
+  /* Handles UAVs sidebar component */
+  handleUavComp (eventKey, param) {
+    let newScenario = Object.assign({}, this.state.scenario);
+    newScenario.uavs = param;
+    this.setState({scenario : newScenario});
+  }
+
+  /* Handles Target sidebar component */
+  handleTargetComp (eventKey, param) {
+    let newScenario = Object.assign({}, this.state.scenario);
+    newScenario.targets = param;
+    this.setState({scenario : newScenario});
+  }
+
+  /* Handles Environment sidebar component */
+  handleEnvComp (eventKey, env) {
+  }
+
+  /* Handles Request sidebar component */
+  handleRequestComp (eventKey, request) {
+  }
+
   /* Component render method */
   render () {
     return (
       <div className='app'>
         <TopMenu
           scenario={this.state.scenario}
-          onScenarioAction={(eventKey, param) => this.handleScenarioMenu(eventKey, param)}
-          onUavAction={(eventKey, param) => this.handleUavMenu(eventKey, param)}
-          onTargetAction={(target) => this.handleTargetMenu(target)}
-          onEnvAction={(env) => this.handleEnvMenu(env)}
-          onRequestAction={(request) => this.handleRequestMenu(request)}
+          onMenuAction={(menu, eventKey, param) => this.handleTopMenu(menu, eventKey, param)}
         />
         <SideBar
           scenario={this.state.scenario}
-          onScenarioAction={(eventKey, param) => this.handleScenarioMenu(eventKey, param)}
-          onUavAction={(eventKey, param) => this.handleUavMenu(eventKey, param)}
+          onComponentAction={(component, eventKey, param) => this.handleSideBar(component, eventKey, param)}
         />
       </div>
     );
