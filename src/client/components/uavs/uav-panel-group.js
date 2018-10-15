@@ -7,9 +7,10 @@ import { PanelGroup, Panel } from 'react-bootstrap';
 /* Styles import */
 import '../../style/uav.css';
 
-// create uavTypes & uavModels context to share it with nested components
+// create uavTypes, uavModels & sensorTypes context to share it with nested components
 const UavTypesContext = React.createContext();
 const UavModelsContext = React.createContext();
+const SensorTypesContext = React.createContext();
 
 /* comoponent class */
 class UavPanelGroup extends Component {
@@ -19,12 +20,14 @@ class UavPanelGroup extends Component {
     //binding of methods
     this.fetchUAVTypes = this.fetchUAVTypes.bind(this);
     this.fetchUAVModels = this.fetchUAVModels.bind(this);
+    this.fetchSensorTypes = this.fetchSensorTypes.bind(this);
     this.fetchScenarioUAVs = this.fetchScenarioUAVs.bind(this);
     this.handleSelect = this.handleSelect.bind(this);
     // internal state
     this.state = {
       uavTypes : [],
       uavModels : [],
+      sensorTypes : [],
       scenarioUAVs : [],
       activeUAV : ''
     };
@@ -62,6 +65,22 @@ class UavPanelGroup extends Component {
     .catch(err => console.log(err))
   }
 
+  /* Get current sensor types from the server */
+  fetchSensorTypes() {
+    fetch('/api/sensors/types')
+    .then(res => {
+      if (!res.ok) {
+        alert(`${res.statusText}`);
+      }
+      res.json()
+      .then(data => {
+        // update the sensorTypes list with the data received
+        this.setState({sensorTypes : data});
+      })
+    })
+    .catch(err => console.log(err))
+  }
+
   /* Get current scenario uavs from the server */
   fetchScenarioUAVs(scenarioID) {
     fetch('/api/scenario/uavs/' + scenarioID)
@@ -84,6 +103,7 @@ class UavPanelGroup extends Component {
   componentDidMount() {
     this.fetchUAVTypes();
     this.fetchUAVModels();
+    this.fetchSensorTypes();
   }
 
   /* Lifecycle method called immediately after updating occurs */
@@ -106,10 +126,12 @@ class UavPanelGroup extends Component {
       return (
         <UavTypesContext.Provider value={this.state.uavTypes}>
           <UavModelsContext.Provider value={this.state.uavModels}>
-            <UavPanel
-              eventKey={item._id}
-              uavName={item.name}
-            />
+            <SensorTypesContext.Provider value={this.state.sensorTypes}>
+              <UavPanel
+                eventKey={item._id}
+                uavName={item.name}
+              />
+            </SensorTypesContext.Provider>               
           </UavModelsContext.Provider>
         </UavTypesContext.Provider>
       );
@@ -138,4 +160,4 @@ class UavPanelGroup extends Component {
 }
 
 export default UavPanelGroup;
-export { UavTypesContext, UavModelsContext };
+export { UavTypesContext, UavModelsContext, SensorTypesContext };

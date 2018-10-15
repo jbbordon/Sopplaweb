@@ -122,7 +122,7 @@ class UavForm extends Component {
 
   /* Handle save button */
   handleSave() {
-  // lift up the form data to be saved
+   // lift up the form data to be saved
     this.props.onSave(this.state);
   }
 

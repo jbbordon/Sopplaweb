@@ -20,8 +20,8 @@ class SensorPanel extends Component {
     }
     //binding of methods
     this.fetchSensor = this.fetchSensor.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
     this.handleSave = this.handleSave.bind(this);
-    this.handleFaTrash = this.handleFaTrash.bind(this);
   }
 
   /* Get a Sensor from the server */
@@ -45,12 +45,37 @@ class SensorPanel extends Component {
     this.fetchSensor(this.props.eventKey);
   }
 
-  /* Save a Sensor in the server */
+  /* handle the press of faTrash */
+  handleDelete() {
+    // call the server to delete the selected sensor
+    fetch('/api/sensors/' + this.props.eventKey  + '/uavs/' + this.props.uavID, {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      if (!res.ok) {
+        alert(`${res.statusText}`);
+      } else {
+      res.json()
+        .then(data => {
+          // setup state with the data received
+          this.props.onDelete(data);
+          alert(`${this.state.sensor.name} deleted`);
+        })
+      }
+    })
+    .catch(err => console.log(err));
+  }
+
+  /* save a sensor in the server */
   handleSave(sensor) {
     //send the server the PUT request with the new data
     fetch('/api/sensors', {
       method: 'PUT',
-      body: JSON.stringify(Sensor),
+      body: JSON.stringify(sensor),
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -68,10 +93,6 @@ class SensorPanel extends Component {
     .catch(err => console.log(err));
   }
 
-  /* handle the press of faTrash */
-  handleFaTrash() {
-  }
-
   /* Render SensorPanel component */
   render () {
     return (
@@ -83,13 +104,16 @@ class SensorPanel extends Component {
               icon={faTrash}
               size="lg"
               pull="right"
-              onClick={this.handleFaTrash}
+              onClick={this.handleDelete}
             />
           </Panel.Title>
         </Panel.Heading>
         <Panel.Collapse>
           <Panel.Body>
-            Aquí iría el formulario de los sensores
+            <SensorForm
+              sensor={this.state.sensor}
+              onSave={(sensor) => this.handleSave(sensor)}
+            />
           </Panel.Body>
         </Panel.Collapse>
       </Panel>

@@ -1,7 +1,7 @@
 /* Modules import */
 import React, { Component } from 'react';
 /* Bootstrap components import */
-import { PanelGroup, Panel } from 'react-bootstrap';
+import { Panel } from 'react-bootstrap';
 /* Components import */
 import UavForm from './uav-form.js';
 import SensorPanelGroup from '../sensors/sensor-panel-group.js';
@@ -16,7 +16,7 @@ class UavPanel extends Component {
     super(props);
     // internal state
     this.state = {
-      uav : null,
+      uav : null
     }
     //binding of methods
     this.fetchUAV = this.fetchUAV.bind(this);
@@ -86,12 +86,6 @@ class UavPanel extends Component {
 
   /* Render UavPanel component */
   render () {
-
-    let sensorArray = [];
-    if (this.state.uav !== null) {
-      sensorArray = this.state.uav.sensor;
-    }
-
     return (
       <Panel eventKey={this.props.eventKey}>
         <Panel.Heading>
@@ -105,12 +99,10 @@ class UavPanel extends Component {
               uav={this.state.uav}
               onSave={(uav) => this.handleSave(uav)}
             />
-            <PanelGroup>
-              <SensorPanelGroup
-                uavID={this.props.eventKey}
-                uavSensors={sensorArray}
-              />
-            </PanelGroup>
+            <SensorPanelGroup
+              key={this.props.eventKey}
+              uavID={this.props.eventKey}
+            />
           </Panel.Body>
         </Panel.Collapse>
       </Panel>

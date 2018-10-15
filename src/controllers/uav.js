@@ -1,6 +1,7 @@
 //File: controllers/uav.js
 const Scenario = require ('../models/scenario');
 const UAV = require ('../models/uav');
+const Sensor  = require ('../models/sensor');
 const config = require ('../models/config');
 
 ///////////////////* UAV Menu methods */////////////////////////
@@ -15,12 +16,6 @@ function getUAVTypes (req, res) {
 function getUAVModels (req, res) {
 	console.log ('GET /uavs/models');
 	res.status(200).jsonp(config.uavMotionModels);
-};
-
-/* Return a list of uav sensors defined in the DB*/
-function getUAVSensors (req, res) {
-	console.log ('GET /uavs/sensors');
-	res.status(200).jsonp(config.uavSensors);
 };
 
 /* Return the list of UAVs of the DB */
@@ -52,6 +47,24 @@ function getUAV (req, res) {
 		    	res.status(200).jsonp(uav);
 		    };
 		};
+	});
+};
+
+/* Return the list of sensors defined for a given UAV*/
+function getUAVSensors (req, res) {
+	console.log ('GET /uavs/sensors/:uavID');
+	UAV.findOne({"_id": req.params.uavID}).
+	populate('sensor', 'name _id').
+	exec(function(err, list) {
+	    if(err) {
+	    	res.status(500).send({ message : 'Error while retrieving the uav sensor list from the DB'});
+	    } else {
+	    	if (!list) {
+	    		res.status(404).send({ message : 'Error there are no sensors defined for the given UAV'});
+	    	} else {
+				res.status(200).jsonp(list.sensor);
+	    	}
+	   	}
 	});
 };
 
@@ -237,8 +250,8 @@ function deleteUAVSensor (req, res) {
 module.exports = {
 	getUAVTypes,
 	getUAVModels,
-	getUAVSensors,
 	getUAV,
+	getUAVSensors,
 	getUAVs,
 	addUAV,
 	addUAVSensor,

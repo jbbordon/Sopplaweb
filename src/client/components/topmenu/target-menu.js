@@ -220,7 +220,7 @@ class TargetMenu extends Component {
 
     return (
       <NavItem>
-        <NavDropdown eventKey={3} title="Target">
+        <NavDropdown eventKey={3} title="Target" id="targetMenu">
           <MenuItem eventKey={3.1} onSelect={this.handleMenu}>New</MenuItem>
           <MenuItem disabled={disable} eventKey={3.2} onSelect={this.handleMenu}>Add</MenuItem>
           <MenuItem disabled={disable} eventKey={3.3} onSelect={this.handleMenu}>Remove</MenuItem>
@@ -260,4 +260,3 @@ class TargetMenu extends Component {
 }
 
 export default TargetMenu;
-

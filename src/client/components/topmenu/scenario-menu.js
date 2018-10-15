@@ -66,7 +66,7 @@ class ScenarioMenu extends Component {
       } else {
         res.json()
         .then(data => {
-          this.fetchScenarios();          
+          this.fetchScenarios();
           this.props.onAction('new', data);
           alert(`${data.name} created`);
         })
@@ -109,7 +109,7 @@ class ScenarioMenu extends Component {
       if (!res.ok) {
         alert(`${res.statusText}`);
       } else {
-        this.fetchScenarios();        
+        this.fetchScenarios();
         this.props.onAction('delete', scenario);
         alert(`${scenario.name} deleted`);
       }
@@ -138,7 +138,7 @@ class ScenarioMenu extends Component {
   render () {
     return (
       <NavItem>
-        <NavDropdown title="Scenario">
+        <NavDropdown title="Scenario" id="scenarioMenu">
           <MenuItem eventKey={1} onSelect={this.handleScenarioMenu}>New</MenuItem>
           <MenuItem eventKey={2} onSelect={this.handleScenarioMenu}>Load</MenuItem>
           <MenuItem eventKey={3} onSelect={this.handleScenarioMenu}>Delete</MenuItem>

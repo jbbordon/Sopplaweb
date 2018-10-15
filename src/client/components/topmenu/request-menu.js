@@ -127,7 +127,7 @@ class RequestMenu extends Component {
   render () {
     return (
       <NavItem>
-        <NavDropdown eventKey={5} title="Request">
+        <NavDropdown eventKey={5} title="Request" id="requestMenu">
           <MenuItem eventKey={5.1} onSelect={this.handleMenu}>New</MenuItem>
           <MenuItem eventKey={5.2} onSelect={this.handleMenu}>Add</MenuItem>
           <MenuItem eventKey={5.3} onSelect={this.handleMenu}>Remove</MenuItem>

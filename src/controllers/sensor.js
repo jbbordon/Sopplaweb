@@ -54,25 +54,30 @@ function addSensor (req, res) {
 		if (err) {
 			res.status(500).send({ message : 'Error while saving the sensor in the DB'});
 		} else {
-			//add the new sensor to the given uav
-			UAV.findOneAndUpdate (
-				{'_id' : req.body.uavID},
-				{ $push : {
-					'sensor': sensorStored}
-				},
-				{new : true}).
-				exec(function (err, uav) {
-					if (err) {
-						res.status(500).send({ message : 'Error while updating the sensor in the DB'});
-					} else {
-						if (!uav) {
-							res.status(404).send({ message : 'Error while updating the sensor in the DB'});
+			if (!sensorStored) {
+				res.status(404).send({ message : 'Sensor does not exist in the DB'});
+			} else {
+				//add the new sensor to the given uav
+				UAV.findOneAndUpdate (
+					{'_id' : req.body.uavID},
+					{ $push : {
+						'sensor': sensorStored}
+					},
+					{new : true}).
+					populate('sensor', 'name _id').
+					exec(function (err, uav) {
+						if (err) {
+							res.status(500).send({ message : 'Error while adding the sensor to the UAV'});
 						} else {
-							res.status(200).jsonp(uav.sensor);
+							if (!uav) {
+								res.status(404).send({ message : 'Error while updating the sensor in the DB'});
+							} else {
+								res.status(200).jsonp(uav.sensor);
+							}
 						}
 					}
-				}
-			);
+				);
+			}
 		};
 	});
 };
@@ -84,14 +89,14 @@ function updateSensor (req, res) {
 	Sensor.findOneAndUpdate (
 		{'_id' : req.body._id},
 		{ $set : {
-      name : req.body.name,
-    	type : req.body.type,
-    	controlAt : req.body.controlAt,
-    	captureAt : req.body.captureAt,
-    	initState : {
-    		elevation : req.body.elevation,
-    		azimuth   : req.body.azimuth
-    	}
+      		name : req.body.name,
+    		type : req.body.type,
+    		controlAt : req.body.controlAt,
+    		captureAt : req.body.captureAt,
+    		initState : {
+    			elevation : req.body.elevation,
+    			azimuth   : req.body.azimuth
+    		}
 		}},
 		{new : true},
 		function (err, sensorUpdated) {
@@ -108,43 +113,39 @@ function updateSensor (req, res) {
 	);
 };
 
-/* copy a given sensor from the DB */
-function copySensor (req, res) {
-	console.log ('DELETE /sensors/:sensorID');
-  Sensor.findById(req.params.sensorID, function(err, sensor) {
-    if (err) {
-    	res.status(500).send({ message : 'Error while retrieving the sensor from the DB'});
-    } else {
-	    if (!sensor) {
-	    	res.status(404).send({ message : 'Sensor does not exist in the DB'});
-	    } else {
-        //read input data from http body request
-      	let copy = Object.assign({}, copy, sensor);
-      	copy.name = req.body.name;
-        copy._id = '';
-      	// store the new Sensor in the DB
-      	copy.save (function (err, sensorStored) {
-      		if (err) {
-      			res.status(500).send({ message : 'Error while saving the sensor in the DB'});
-      		} else {
-      			res.status(200).send({Sensor : sensorStored});
-      		};
-      	});
-	    };
-	  };
-  });
-};
-
 /* Delete a given sensor from the DB */
 function deleteSensor (req, res) {
-	console.log ('DELETE /sensors/:sensorID');
+	console.log ('DELETE /sensors/:sensorID/uavs/:uavID');
 	// delete the sensor from the DB
 	Sensor.remove ({'_id' : req.params.sensorID}, function (err, sensor) {
 		if (err) {
 			res.status(500).send({ message : 'Error while deleting the sensor in the DB'});
 		} else {
-      res.status(200).send({ message : 'Sensor delteted' });
-    }
+			if (!sensor) {
+				res.status(404).send({ message : 'Sensor does not exist in the DB'});
+			} else {
+				//add the new sensor to the given uav
+				UAV.findOneAndUpdate (
+					{'_id' :req.params.uavID},
+					{ $pull : {
+						'sensor': req.params.sensorID}
+					},
+					{new : true}).
+					populate('sensor', 'name _id').
+					exec(function (err, uav) {
+						if (err) {
+							res.status(500).send({ message : 'Error while deleting the sensor of the UAV'});
+						} else {
+							if (!uav) {
+								res.status(404).send({ message : 'UAV does not exist in the DB'});
+							} else {
+								res.status(200).jsonp(uav.sensor);
+							}
+						}
+					}
+				);
+			}
+    	}
 	});
 };
 
@@ -155,6 +156,5 @@ module.exports = {
 	getSensor,
 	addSensor,
 	updateSensor,
-	copySensor,
 	deleteSensor
 };

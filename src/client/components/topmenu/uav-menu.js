@@ -220,7 +220,7 @@ class UavMenu extends Component {
 
     return (
       <NavItem>
-        <NavDropdown eventKey={2} title="UAV">
+        <NavDropdown eventKey={2} title="UAV" id="uavMenu">
           <MenuItem eventKey={2.1} onSelect={this.handleMenu}>New</MenuItem>
           <MenuItem disabled={disable} eventKey={2.2} onSelect={this.handleMenu}>Add</MenuItem>
           <MenuItem disabled={disable} eventKey={2.3} onSelect={this.handleMenu}>Remove</MenuItem>

@@ -11,77 +11,44 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons'
 /* Styles import */
 import '../../style/sensor.css';
 
-// create sensorTypes context to share it with nested components
-const SensorTypesContext = React.createContext();
-
 /* comoponent class */
 class SensorPanelGroup extends Component {
 
   constructor(props, context) {
     super(props, context);
     //binding of methods
-    this.fetchSensorTypes = this.fetchSensorTypes.bind(this);
     this.fetchUavSensors = this.fetchUavSensors.bind(this);
-    this.handleSelect = this.handleSelect.bind(this);
     this.handleFaEdit = this.handleFaEdit.bind(this);
     this.handleNew = this.handleNew.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
     // internal state
     this.state = {
       showNew : false,
-      sensorTypes : [],
-      uavSensors : [],
-      activeSensor : ''
+      uavSensors : []
     };
-  }
-
-  /* Get current sensor types from the server */
-  fetchSensorTypes() {
-    fetch('/api/sensors/types')
-    .then(res => {
-      if (!res.ok) {
-        alert(`${res.statusText}`);
-      }
-      res.json()
-      .then(data => {
-        // update the sensorTypes list with the data received
-        this.setState({sensorTypes : data});
-      })
-    })
-    .catch(err => console.log(err))
   }
 
   /* Get current uav sensors from the server */
   fetchUavSensors(uavID) {
-    fetch('/api/uav/sensors/' + uavID)
+    fetch('/api/uavs/sensors/' + uavID)
     .then(res => {
       if (!res.ok) {
         alert(`${res.statusText}`);
+      } else {
+        res.json()
+        .then(data => {
+          console.log(data);
+          // update the uavSensors with the data received
+          this.setState({uavSensors : data});
+        })
       }
-      res.json()
-      .then(data => {
-        // update the uavSensors with the data received
-        this.setState({uavSensors : data});
-      })
     })
     .catch(err => console.log(err))
   }
 
-  /* Lifecycle method called immediately after mount occurs */
+  /* Lifecycle method called immediately after component is mount */
   componentDidMount() {
-    this.fetchSensorTypes();
-  }
-
-  /* Lifecycle method called immediately after updating occurs */
-  componentDidUpdate(prevProps) {
-    if (this.props !== prevProps) {
-      // uavSensors must be updated & activeSensor reset
-      this.setState({uavSensors : this.props.uavSensors});
-    }
-  }
-
-  /* handle the selection of a uav sensor */
-  handleSelect(activeKey) {
-    this.setState({activeSensor : activeKey});
+    this.fetchUavSensors(this.props.uavID);
   }
 
   /* handle the press of faEdit */
@@ -116,22 +83,29 @@ class SensorPanelGroup extends Component {
     this.setState({ showNew : false });
   }
 
+  handleDelete (sensors) {
+    // uavSensors must be updated
+    this.setState({
+      uavSensors : sensors
+    });
+  }
+
   /* Render SensorPanelGroup component */
   render() {
     // build the Sensors panels
     const sensors = this.state.uavSensors.map(item => {
       return (
-        <SensorTypesContext.Provider value={this.state.sensorTypes}>
-          <SensorPanel
-            eventKey={item._id}
-            sensorName={item.name}
-          />
-        </SensorTypesContext.Provider>
+        <SensorPanel
+          uavID={this.props.uavID}
+          eventKey={item._id}
+          sensorName={item.name}
+          onDelete={(sensors) => this.handleDelete(sensors)}
+        />
       );
     });
 
     return (
-      <div>
+      <PanelGroup>
         <Panel>
           <Panel.Heading>
             <Panel.Title toggle>
@@ -155,16 +129,15 @@ class SensorPanelGroup extends Component {
             </Panel.Body>
           </Panel.Collapse>
         </Panel>
-      <ModalNew
-        title="New Sensor"
-        show={this.state.showNew}
-        onNew={(sensor) => this.handleNew(sensor)}
-        onHide={() => this.setState({ showNew: false })}
-      />
-      </div>
+        <ModalNew
+          title="New Sensor"
+          show={this.state.showNew}
+          onNew={(sensor) => this.handleNew(sensor)}
+          onHide={() => this.setState({ showNew: false })}
+        />
+      </PanelGroup>
     );
   }
 }
 
 export default SensorPanelGroup;
-export {SensorTypesContext};

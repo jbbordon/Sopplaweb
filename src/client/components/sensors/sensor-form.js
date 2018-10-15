@@ -6,7 +6,7 @@ import '../../style/sensor.css';
 /* React-Bootstrap components import */
 import { FormGroup, InputGroup, FormControl, Button } from 'react-bootstrap';
 /* Context import */
-import { SensorTypesContext, SensorModelsContext } from './sensor-panel-group.js'
+import { SensorTypesContext } from '../uavs/uav-panel-group.js'
 
 class SensorForm extends Component {
 
@@ -17,21 +17,10 @@ class SensorForm extends Component {
       _id : '',
       name : '',
       type: '',
-      modelType : '',
-      modelAt : '',
-      initLatitude : '',
-      initLongitude : '',
+      controlAt : '',
+      captureAt : '',
       initElevation : '',
-  		initHeading : '',
-  		initYaw : '',
-  		initSpeed : '',
-      initTime : '',
-      finalLatitude : '',
-      finalLongitude : '',
-      finalElevation : '',
-  		finalHeading : '',
-  		finalSpeed : '',
-      flightTime : ''
+  		initAzimuth : ''
     }
     //binding of methods
     this.resetForm = this.resetForm.bind(this);
@@ -46,21 +35,10 @@ class SensorForm extends Component {
       _id : '',
       name : '',
       type: '',
-      modelType : '',
-      modelAt : '',
-      initLatitude : '',
-      initLongitude : '',
+      controlAt : '',
+      captureAt : '',
       initElevation : '',
-      initHeading : '',
-      initYaw : '',
-      initSpeed : '',
-      initTime : '',
-      finalLatitude : '',
-      finalLongitude : '',
-      finalElevation : '',
-      finalHeading : '',
-      finalSpeed : '',
-      flightTime : ''
+  		initAzimuth : ''
     }
   }
 
@@ -82,21 +60,11 @@ class SensorForm extends Component {
             _id : this.props.sensor._id,
             name : this.props.sensor.name,
             type: this.props.sensor.type,
-            modelType : this.props.sensor.motionModel.type,
-            modelAt : this.props.sensor.motionModel.at,
-            initLatitude : this.props.sensor.initState.latitude,
-            initLongitude : this.props.sensor.initState.longitude,
+            controlAt : this.props.sensor.controlAt,
+            captureAt : this.props.sensor.captureAt,
+            initElevation : this.props.sensor.initState.latitude,
+            initAzimuth : this.props.sensor.initState.longitude,
             initElevation : this.props.sensor.initState.elevation,
-            initHeading : this.props.sensor.initState.heading,
-            initYaw : this.props.sensor.initState.yaw,
-            initSpeed : this.props.sensor.initState.speed,
-            initTime : this.props.sensor.initTime,
-            finalLatitude : this.props.sensor.finalState.latitude,
-            finalLongitude : this.props.sensor.finalState.longitude,
-            finalElevation : this.props.sensor.finalState.elevation,
-            finalHeading : this.props.sensor.finalState.heading,
-            finalSpeed : this.props.sensor.finalState.speed,
-            flightTime : this.props.sensor.flightTime
           };
         }
       }
@@ -130,210 +98,84 @@ class SensorForm extends Component {
     return (
       <SensorTypesContext.Consumer>
         {sensorTypes => (
-          <SensorModelsContext.Consumer>
-            {sensorModels => (
-              <form className="sensorForm">
-                <Button onClick={this.handleSave}>Save</Button>
-                <FormGroup className="sensorDef" bsSize="small">
-                  <label>Definition</label>
-                  <InputGroup>
-                    <InputGroup.Addon>Name</InputGroup.Addon>
-                    <FormControl
-                      type="text"
-                      onChange={this.handleInputChange}
-                      id="name"
-                      value={this.state.name}
-                      placeholder="Text"
-                      required/>
-                  </InputGroup>
-                  <InputGroup>
-                    <InputGroup.Addon>Type</InputGroup.Addon>
-                    <FormControl
-                      componentClass="select"
-                      onChange={this.handleInputChange}
-                      id="type"
-                      value={this.state.type}
-                      placeholder="select"
-                      required>
-                      {this.renderSelect(sensorTypes)}
-                    </FormControl>
-                  </InputGroup>
-                  <InputGroup>
-                    <InputGroup.Addon>Model</InputGroup.Addon>
-                    <FormControl
-                      componentClass="select"
-                      onChange={this.handleInputChange}
-                      id="modelType"
-                      value={this.state.modelType}
-                      placeholder="select"
-                      required>
-                      {this.renderSelect(sensorModels)}
-                    </FormControl>
-                  </InputGroup>
-                  <InputGroup>
-                    <InputGroup.Addon>AT</InputGroup.Addon>
-                    <FormControl
-                      type="number"
-                      onChange={this.handleInputChange}
-                      id="modelAt"
-                      value={this.state.modelAt}
-                      placeholder="Milisenconds"
-                      required/>
-                  </InputGroup>
-                </FormGroup>
-                <FormGroup className="sensorInitState" bsSize="small">
-                  <label>Initial State</label>
-                  <InputGroup>
-                    <InputGroup.Addon>Latitude</InputGroup.Addon>
-                    <FormControl
-                      type="real"
-                      onChange={this.handleInputChange}
-                      min="-90"
-                      max="90"
-                      id="initLatitude"
-                      value={this.state.initLatitude}
-                      placeholder="Decimal Degrees"
-                      required/>
-                  </InputGroup>
-                  <InputGroup>
-                    <InputGroup.Addon>Longitude</InputGroup.Addon>
-                    <FormControl
-                      type="real"
-                      onChange={this.handleInputChange}
-                      min="-180"
-                      max="180"
-                      id="initLongitude"
-                      value={this.state.initLongitude}
-                      placeholder="Decimal Degrees"
-                      required/>
-                  </InputGroup>
-                  <InputGroup>
-                    <InputGroup.Addon>Elevation</InputGroup.Addon>
-                    <FormControl
-                      type="number"
-                      onChange={this.handleInputChange}
-                      id="initElevation"
-                      value={this.state.initElevation}
-                      placeholder="Meters"
-                      required/>
-                  </InputGroup>
-                  <InputGroup>
-                    <InputGroup.Addon>Heading</InputGroup.Addon>
-                    <FormControl
-                      type="number"
-                      onChange={this.handleInputChange}
-                      min="0"
-                      max="360"
-                      id="initHeading"
-                      value={this.state.initHeading}
-                      placeholder="Degrees"
-                      required/>
-                  </InputGroup>
-                  <InputGroup>
-                    <InputGroup.Addon>Yaw</InputGroup.Addon>
-                    <FormControl
-                      type="number"
-                      onChange={this.handleInputChange}
-                      min="0"
-                      max="180"
-                      id="initYaw"
-                      value={this.state.initYaw}
-                      placeholder="Degrees"
-                      required/>
-                  </InputGroup>
-                  <InputGroup>
-                    <InputGroup.Addon>Speed</InputGroup.Addon>
-                    <FormControl
-                      type="number"
-                      onChange={this.handleInputChange}
-                      id="initSpeed"
-                      value={this.state.initSpeed}
-                      placeholder="m/s"
-                      required/>
-                  </InputGroup>
-                  <InputGroup>
-                    <InputGroup.Addon>Init Time</InputGroup.Addon>
-                    <FormControl
-                      type="number"
-                      onChange={this.handleInputChange}
-                      id="initTime"
-                      value={this.state.initTime}
-                      placeholder="seconds"
-                      required/>
-                  </InputGroup>
-                </FormGroup>
-                <FormGroup className="sensorFinalState" bsSize="small">
-                  <label>Final State</label>
-                  <InputGroup>
-                    <InputGroup.Addon>Latitude</InputGroup.Addon>
-                    <FormControl
-                      type="real"
-                      onChange={this.handleInputChange}
-                      min="-90"
-                      max="90"
-                      id="finalLatitude"
-                      value={this.state.finalLatitude}
-                      placeholder="Decimal Degrees"
-                      required/>
-                  </InputGroup>
-                  <InputGroup>
-                    <InputGroup.Addon>Longitude</InputGroup.Addon>
-                    <FormControl
-                      type="real"
-                      onChange={this.handleInputChange}
-                      min="-180"
-                      max="180"
-                      id="finalLongitude"
-                      value={this.state.finalLongitude}
-                      placeholder="Decimal Degrees"
-                      required/>
-                  </InputGroup>
-                  <InputGroup>
-                    <InputGroup.Addon>Elevation</InputGroup.Addon>
-                    <FormControl
-                      type="number"
-                      onChange={this.handleInputChange}
-                      id="finalElevation"
-                      value={this.state.finalElevation}
-                      placeholder="Meters"
-                      required/>
-                  </InputGroup>
-                  <InputGroup>
-                    <InputGroup.Addon>Heading</InputGroup.Addon>
-                    <FormControl
-                      type="number"
-                      onChange={this.handleInputChange}
-                      min="0"
-                      max="360"
-                      id="finalHeading"
-                      value={this.state.finalHeading}
-                      placeholder="Degrees"
-                      required/>
-                  </InputGroup>
-                  <InputGroup>
-                    <InputGroup.Addon>Speed</InputGroup.Addon>
-                    <FormControl
-                      type="number"
-                      onChange={this.handleInputChange}
-                      id="finalSpeed"
-                      value={this.state.finalSpeed}
-                      placeholder="m/s"
-                      required/>
-                  </InputGroup>
-                  <InputGroup>
-                    <InputGroup.Addon>Flight Time</InputGroup.Addon>
-                    <FormControl
-                      type="number"
-                      onChange={this.handleInputChange}
-                      id="flightTime"
-                      value={this.state.flightTime}
-                      placeholder="seconds"
-                      required/>
-                  </InputGroup>
-                </FormGroup>
-              </form>
-            )}
-          </SensorModelsContext.Consumer>
+          <form className="sensorForm">
+            <Button onClick={this.handleSave}>Save</Button>
+            <FormGroup className="sensorDef" bsSize="small">
+              <label>Definition</label>
+              <InputGroup>
+                <InputGroup.Addon>Name</InputGroup.Addon>
+                <FormControl
+                  type="text"
+                  onChange={this.handleInputChange}
+                  id="name"
+                  value={this.state.name}
+                  placeholder="Text"
+                  required/>
+              </InputGroup>
+              <InputGroup>
+                <InputGroup.Addon>Type</InputGroup.Addon>
+                <FormControl
+                  componentClass="select"
+                  onChange={this.handleInputChange}
+                  id="type"
+                  value={this.state.type}
+                  placeholder="select"
+                  required>
+                  {this.renderSelect(sensorTypes)}
+                </FormControl>
+              </InputGroup>
+              <InputGroup>
+                <InputGroup.Addon>controlAt</InputGroup.Addon>
+                <FormControl
+                  type="number"
+                  onChange={this.handleInputChange}
+                  min="0"
+                  id="controlAt"
+                  value={this.state.controlAt}
+                  placeholder="Milisenconds"
+                  required>
+                </FormControl>
+              </InputGroup>
+              <InputGroup>
+                <InputGroup.Addon>captureAt</InputGroup.Addon>
+                <FormControl
+                  type="number"
+                  onChange={this.handleInputChange}
+                  min="0"
+                  id="captureAt"
+                  value={this.state.captureAt}
+                  placeholder="Milisenconds"
+                  required/>
+              </InputGroup>
+            </FormGroup>
+            <FormGroup className="sensorInitState" bsSize="small">
+              <label>Initial State</label>
+              <InputGroup>
+                <InputGroup.Addon>Elevation</InputGroup.Addon>
+                <FormControl
+                  type="number"
+                  onChange={this.handleInputChange}
+                  min="0"
+                  max="90"
+                  id="initElevation"
+                  value={this.state.initElevation}
+                  placeholder="Degrees"
+                  required/>
+              </InputGroup>
+              <InputGroup>
+                <InputGroup.Addon>Azimuth</InputGroup.Addon>
+                <FormControl
+                  type="number"
+                  onChange={this.handleInputChange}
+                  min="0"
+                  max="360"
+                  id="initAzimuth"
+                  value={this.state.initAzimuth}
+                  placeholder="Degrees"
+                  required/>
+              </InputGroup>
+            </FormGroup>
+          </form>
         )}
       </SensorTypesContext.Consumer>
     );

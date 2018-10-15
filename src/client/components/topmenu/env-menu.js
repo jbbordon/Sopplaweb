@@ -126,7 +126,7 @@ class EnvMenu extends Component {
   render () {
     return (
       <NavItem>
-        <NavDropdown eventKey={4} title="Env">
+        <NavDropdown eventKey={4} title="Env" id="envMenu">
           <MenuItem eventKey={4.1} onSelect={this.handleMenu}>New</MenuItem>
           <MenuItem eventKey={4.2} onSelect={this.handleMenu}>Add</MenuItem>
           <MenuItem eventKey={4.3} onSelect={this.handleMenu}>Remove</MenuItem>
