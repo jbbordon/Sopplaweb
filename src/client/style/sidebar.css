@@ -1,8 +1,9 @@
-.tabs {
-  margin: 16px;
-}
-
-.tab {
-  margin-top: 16px;
-  margin-bottom: 16px;  
+.sidebar {
+    width: 25%; /* Set the width of the sidebar */
+    position: static; /* Fixed Sidebar (stay in place on scroll) */
+    z-index: 1; /* Stay on top */
+    top: 3%; /* Stay at the top */
+    left: 0;
+    overflow-x: hidden; /* Disable horizontal scroll */
+    padding-top: 20px;
 }

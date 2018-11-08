@@ -2,22 +2,22 @@
 import React, { Component } from 'react';
 /* Components import */
 import ModalNew from '../modals/modal-new.js'
-import UavPanel from './uav-panel.js';
+import TargetPanel from './target-panel.js';
 /* Bootstrap components import */
 import { PanelGroup, Panel } from 'react-bootstrap';
 /* FontAwesome components import */
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 /* Styles import */
-import '../../style/uav.css';
+import '../../style/target.css';
 
 /* comoponent class */
-class UavPanelGroup extends Component {
+class TargetPanelGroup extends Component {
 
   constructor(props, context) {
     super(props, context);
     //binding of methods
-    this.fetchScenarioUAVs = this.fetchScenarioUAVs.bind(this);
+    this.fetchScenarioTargets = this.fetchScenarioTargets.bind(this);
     this.handleSelect = this.handleSelect.bind(this);
     this.handleFaEdit = this.handleFaEdit.bind(this);
     this.handleNew = this.handleNew.bind(this);
@@ -25,22 +25,22 @@ class UavPanelGroup extends Component {
     // internal state
     this.state = {
       showNew : false,
-      scenarioUAVs : [],
-      activeUAV : ''
+      scenarioTargets : [],
+      activeTarget : ''
     };
   }
 
-  /* Get current scenario uavs from the server */
-  fetchScenarioUAVs(scenarioID) {
-    fetch('/api/scenario/uavs/' + scenarioID)
+  /* Get current scenario targets from the server */
+  fetchScenarioTargets(scenarioID) {
+    fetch('/api/scenario/targets/' + scenarioID)
     .then(res => {
       if (!res.ok) {
         alert(`${res.statusText}`);
       } else {
         res.json()
         .then(data => {
-          // update the scenarioUAVs with the data received
-          this.setState({scenarioUAVs : data});
+          // update the scenarioTargets with the data received
+          this.setState({scenarioTargets : data});
         })
       }
     })
@@ -50,13 +50,13 @@ class UavPanelGroup extends Component {
   /* Lifecycle method called immediately after mount occurs */
   componentDidMount() {
     if (this.props.scenarioID !== "") {
-      this.fetchScenarioUAVs(this.props.scenarioID);
+      this.fetchScenarioTargets(this.props.scenarioID);
     }
   }
 
-  /* handle which scenario uav panel is active */
+  /* handle which scenario target panel is active */
   handleSelect(activeKey) {
-    this.setState({activeUAV : activeKey});
+    this.setState({activeTarget : activeKey});
   }
 
   /* handle the press of faEdit */
@@ -64,12 +64,12 @@ class UavPanelGroup extends Component {
     this.setState({ showNew: true });
   }
 
-  /* handle the creation of a new uav */
-  handleNew(uav) {
-    uav.scenarioID = this.props.scenarioID;
-    fetch('/api/uavs', {
+  /* handle the creation of a new target */
+  handleNew(target) {
+    target.scenarioID = this.props.scenarioID;
+    fetch('/api/targets', {
       method: 'POST',
-      body: JSON.stringify(uav),
+      body: JSON.stringify(target),
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -81,9 +81,9 @@ class UavPanelGroup extends Component {
       } else {
         res.json()
         .then(data => {
-          // update scenario uavs with the data received
-          this.setState({scenarioUAVs : data});
-          alert(`${uav.name} created`);
+          // update scenario targets with the data received
+          this.setState({scenarioTargets : data});
+          alert(`${target.name} created`);
         })
       }
     })
@@ -91,22 +91,22 @@ class UavPanelGroup extends Component {
     this.setState({ showNew : false });
   }
 
-  handleDelete (uavs) {
-    // scenarioUAVs must be updated
-    this.setState({ scenarioUAVs : uavs });
+  handleDelete (targets) {
+    // scenarioTargets must be updated
+    this.setState({ scenarioTargets : targets });
   }
 
-  /* Render UavPanelGroup component */
+  /* Render TargetPanelGroup component */
   render() {
-    // build the UAVs panels
-    const uavPanels = this.state.scenarioUAVs.map(item => {
+    // build the Targets panels
+    const targetPanels = this.state.scenarioTargets.map(item => {
       return (
-        <UavPanel
+        <TargetPanel
           scenarioID={this.props.scenarioID}
           key={item._id}
-          uavID={item._id}
-          uavName={item.name}
-          onDelete={(uavs) => this.handleDelete(uavs)}
+          targetID={item._id}
+          targetName={item.name}
+          onDelete={(targets) => this.handleDelete(targets)}
         />
       );
     });
@@ -115,7 +115,7 @@ class UavPanelGroup extends Component {
       <Panel>
         <Panel.Heading>
           <Panel.Title>
-            <Panel.Toggle>UAVs</Panel.Toggle>
+            <Panel.Toggle>Targets</Panel.Toggle>
             <FontAwesomeIcon
               icon={faEdit}
               size="lg"
@@ -127,17 +127,17 @@ class UavPanelGroup extends Component {
         <Panel.Collapse>
           <Panel.Body>
             <PanelGroup accordion
-              activeKey={this.state.activeUAV}
+              activeKey={this.state.activeTarget}
               onSelect={this.handleSelect}
             >
-              {uavPanels}
+              {targetPanels}
             </PanelGroup>
           </Panel.Body>
         </Panel.Collapse>
         <ModalNew
-          title="New UAV"
+          title="New Target"
           show={this.state.showNew}
-          onNew={(uav) => this.handleNew(uav)}
+          onNew={(target) => this.handleNew(target)}
           onHide={() => this.setState({ showNew: false })}
         />
       </Panel>
@@ -145,4 +145,4 @@ class UavPanelGroup extends Component {
   }
 }
 
-export default UavPanelGroup;
+export default TargetPanelGroup;

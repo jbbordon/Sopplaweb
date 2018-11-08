@@ -68,7 +68,7 @@ function getUAVSensors (req, res) {
 	});
 };
 
-/* Create a new UAV in the DB */
+/* Create a new UAV in the DB 
 function addUAV (req, res) {
 	console.log ('POST /uavs');
 	//read input data from http body request
@@ -82,43 +82,39 @@ function addUAV (req, res) {
 			res.status(200).send({UAV : uavStored});
 		};
 	});
-};
+}; */
 
-/* add a new sensor to an existing UAV in the DB */
-function addUAVSensor (req, res) {
-	console.log ('POST /uavs/sensor');
-	// search for the UAV in the DB
-	UAV.findById(req.body.uavID, function(err, uav) {
-	    if (err) {
-	    	res.status(500).send({ message : 'Error while searching the UAV in the DB'});
-	    } else {
-		    if (!uav) {
-		    	res.status(404).send({ message : 'UAV does not exist in the DB'});
-		    } else {
-		    	// prepare the new sensor to be added
-					let mySensor = {
-						name : req.body.name,
-						type : req.body.type,
-						controlAt : req.body.controlAt,
-						captureAt : req.body.captureAt,
-						initState : {
-							elevation : req.body.initElevation,
-							heading   : req.body.initHeading,
-							azimuth   : req.body.initAzimuth
-						}
-				};
-				// push it into the uav sensors array
-				uav.sensor.push (mySensor);
-				// save the UAV in the DB
-				uav.save (function (err, uavStored) {
+/* Create a new UAV in the DB */
+function addUAV (req, res) {
+	console.log ('POST /uav');
+	//read input data from http body request
+	let myUAV = new UAV();
+	myUAV.name = req.body.name;
+	// store the new UAV in the DB
+	myUAV.save (function (err, uavStored) {
+		if (err) {
+			res.status(500).send({ message : 'Error while saving the uav in the DB'});
+		} else {
+			//add the new uav to the given scenario
+			Scenario.findOneAndUpdate (
+				{'_id' : req.body.scenarioID},
+				{ $push : {
+					'uavs': uavStored}
+				},
+				{new : true}).
+				populate('uavs', 'name _id').
+				exec(function (err, scenario) {
 					if (err) {
-						res.status(500).send({ message : 'Error while adding the sensor to the UAV'});
+						res.status(500).send({ message : 'Error while adding the UAV to the scenario'});
 					} else {
-						// return the uav sensors
-						res.status(200).jsonp(uavStored.sensor);
-					};
-				});
-		    };
+						if (!scenario) {
+							res.status(404).send({ message : 'Scenario does not exist in the DB'});
+						} else {
+							res.status(200).jsonp(scenario.uavs);
+						}
+					}
+				}
+			);
 		};
 	});
 };
@@ -131,9 +127,9 @@ function updateUAV (req, res) {
 		{'_id' : req.body._id},
 		{ $set : {
 			name: req.body.name,
-			type: req.body.type,
+			type: config.uavTypes[req.body.type],
 			motionModel : {
-				type : req.body.modelType,
+				type : config.uavMotionModels[req.body.modelType],
 				at   : req.body.modelAt
 			},
 			initTime : req.body.initTime,
@@ -169,81 +165,41 @@ function updateUAV (req, res) {
 	);
 };
 
-// update a UAV sensor
-function updateUAVSensor (req, res) {
-	console.log ('PUT /uavs/sensor/');
-	UAV.findOneAndUpdate (
-		{'_id' : req.body.uavID},
-		{ $pull : {
-			'sensors': req.body._id}
-		},
-		{new : true}).
-		exec(function (err, uav) {
-			if (err) {
-				res.status(500).send({ message : 'Error while updating the sensor in the DB'});
-			} else {
-				if (!uav) {
-					res.status(404).send({ message : 'Error while updating the sensor in the DB'});
-				} else {
-					res.status(200).jsonp(uav.sensors);
-				}
-			}
-		}
-	);
-};
 
 /* Delete a given uav from the DB */
 function deleteUAV (req, res) {
 	console.log ('DELETE /uavs/:uavID');
-	// delete the uav from the DB
+	// delete the UAV from the DB
 	UAV.remove ({'_id' : req.params.uavID}, function (err, uav) {
 		if (err) {
 			res.status(500).send({ message : 'Error while deleting the uav in the DB'});
 		} else {
-			if (uav.n == 0) {
+			if (!uav) {
 				res.status(404).send({ message : 'UAV does not exist in the DB'});
 			} else {
-				// now remove the uav _id from every scenario with a reference to it
+				//remove the deleted uav from the given scenario
 				Scenario.findOneAndUpdate (
-					null,
-					{ $pull :
-						{ uavs : req.params.uavID }
+					{'_id' :req.params.scenarioID},
+					{ $pull : {
+						'uavs': req.params.uavID}
 					},
-					{new : true},
-					function (err, scenario) {
+					{new : true}).
+					populate('uavs', 'name _id').
+					exec(function (err, scenario) {
 						if (err) {
-							res.status(500).send({ message : 'Error while deleting the uav from every Scenario'});
-						};
+							res.status(500).send({ message : 'Error while removing the UAV from the scenario'});
+						} else {
+							if (!scenario) {
+								res.status(404).send({ message : 'Scenario does not exist in the DB'});
+							} else {
+								res.status(200).jsonp(scenario.uavs);
+							}
+						}
 					}
 				);
-				res.status(200).send ({message : 'UAV successfully deleted in the DB'});
-			};
-		};
-	});
-};
-
-// delete a UAV sensor
-function deleteUAVSensor (req, res) {
-	console.log ('DELETE /uavs/sensor');
-	// search for the UAV in the DB and remove the required sensor
-	UAV.findOneAndUpdate (
-		{'_id' : req.body.uavID},
-		{ $pull : {
-			'sensors': req.body._id}
-		},
-		{new : true}).
-		exec(function (err, uav) {
-			if (err) {
-				res.status(500).send({ message : 'Error while updating the sensor in the DB'});
-			} else {
-				if (!uav) {
-					res.status(404).send({ message : 'Error while updating the sensor in the DB'});
-				} else {
-					res.status(200).jsonp(uav.sensors);
-				}
 			}
-		}
-	);
+    	}
+	});
 };
 
 /* UAV methods export */
@@ -254,9 +210,6 @@ module.exports = {
 	getUAVSensors,
 	getUAVs,
 	addUAV,
-	addUAVSensor,
 	updateUAV,
-	updateUAVSensor,
-	deleteUAV,
-	deleteUAVSensor
+	deleteUAV
 };

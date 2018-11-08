@@ -9,7 +9,7 @@ const TargetCtrl   = require ('../controllers/target');
 const UAVCtrl      = require ('../controllers/uav');
 const SensorCtrl   = require ('../controllers/sensor');
 const EnvCtrl      = require ('../controllers/environment');
-const ReqCtrl      = require ('../controllers/request');
+//const ReqCtrl      = require ('../controllers/request');
 
 // Scenarios Routing
 api.get('/scenario/:scenarioID', ScenarioCtrl.getScenario);
@@ -41,7 +41,7 @@ api.post('/targets/belief/', TargetCtrl.addTargetBelief);
 api.put('/targets/motionmodel/point', TargetCtrl.updateTargetMotionModelPoint);
 api.put('/targets/motionmodel/', TargetCtrl.updateTargetMotionModel);
 api.put('/targets/belief/', TargetCtrl.updateTargetBelief);
-api.delete('/targets/:targetID', TargetCtrl.deleteTarget);
+api.delete('/targets/:targetID/scenario/:scenarioID', TargetCtrl.deleteTarget);
 api.delete('/targets/:targetID/motionmodel/:pointID', TargetCtrl.deleteTargetMotionModelPoint);
 api.delete('/targets/:targetID/motionModel', TargetCtrl.deleteTargetMotionModel);
 api.delete('/targets/:targetID/belief/:layerID', TargetCtrl.deleteTargetBelief);
@@ -53,11 +53,8 @@ api.get('/uavs', UAVCtrl.getUAVs);
 api.get('/uavs/:uavID', UAVCtrl.getUAV);
 api.get('/uavs/sensors/:uavID', UAVCtrl.getUAVSensors);
 api.post('/uavs', UAVCtrl.addUAV);
-api.post('/uavs/sensor', UAVCtrl.addUAVSensor);
 api.put('/uavs', UAVCtrl.updateUAV);
-api.put('/uavs/sensor', UAVCtrl.updateUAVSensor);
-api.delete('/uavs/:uavID', UAVCtrl.deleteUAV);
-api.delete('/uavs/sensor', UAVCtrl.deleteUAVSensor);
+api.delete('/uavs/:uavID/scenario/:scenarioID', UAVCtrl.deleteUAV);
 
 // Sensors Routing
 api.get('/sensors/types', SensorCtrl.getSensorTypes);
@@ -68,19 +65,14 @@ api.put('/sensors', SensorCtrl.updateSensor);
 api.delete('/sensors/:sensorID/uavs/:uavID', SensorCtrl.deleteSensor);
 
 // Environment Routing
-api.get('/environment', EnvCtrl.getEnvs);
-api.get('/environment/:environmentID', EnvCtrl.getEnv);
-api.post('/environment', EnvCtrl.addEnv);
-api.post('/environment/nfz', EnvCtrl.addNFZ);
-api.post('/environment/wind', EnvCtrl.addWind);
-api.put('/environment/nfz', EnvCtrl.updateNFZ);
-api.put('/environment/wind', EnvCtrl.updateWind);
-api.delete('/environment/:environmentID', EnvCtrl.deleteEnv);
-api.delete('/environment/:environmentID/nfz/:nfzPos', EnvCtrl.deleteNFZ);
-api.delete('/environment/:envirorequestsnmentID/wind', EnvCtrl.deleteWind);
+api.get('/environment/nfzs/:nfzID', EnvCtrl.getEnvNFZ);
+api.post('/environment/nfzs', EnvCtrl.addEnvNFZ);
+api.put('/environment/nfzs', EnvCtrl.updateEnvNFZ);
+api.put('/environment/wind', EnvCtrl.updateEnvWind);
+api.delete('/environment/:scenarioID/nfzs/:nfzID', EnvCtrl.deleteEnvNFZ);
 
 // Requests Routing
-api.get('/requests/algorithmtypes', ReqCtrl.getAlgorithmTypes);
+/*api.get('/requests/algorithmtypes', ReqCtrl.getAlgorithmTypes);
 api.get('/requests', ReqCtrl.getRequests);
 api.get('/requests/algorithms/:requestID', ReqCtrl.getRequestAlgorithms);
 api.get('/requests/:requestID', ReqCtrl.getRequest);
@@ -93,7 +85,7 @@ api.put('/requests/merit', ReqCtrl.addMerit);
 api.put('/requests/control', ReqCtrl.addControl);
 api.put('/requests/algorithm', ReqCtrl.addAlgorithm);
 api.delete('/requests/:requestID', ReqCtrl.deleteRequest);
-api.delete('/requests/:requestID/algorithm/:algorithmPos', ReqCtrl.deleteAlgorithm);
+api.delete('/requests/:requestID/algorithm/:algorithmPos', ReqCtrl.deleteAlgorithm);*/
 
 // export the api
 module.exports = api;

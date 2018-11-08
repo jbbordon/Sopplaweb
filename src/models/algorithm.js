@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const Schema   = mongoose.Schema;
 
 const AlgorithmSchema = new Schema ({
-	type : { type: String, enum:  }, // algorithm type : acor, gens...
+	type : type : { type: String, enum: config.algorithmTypes}, // algorithm type : acor, gens...
 	time : Number, // decision horizon
 	rh   : Number, // number of concatenated trajectories
 	nr   : Number, // number of runs

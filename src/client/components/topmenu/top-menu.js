@@ -15,7 +15,12 @@ import RequestMenu from './request-menu.js';
 function TopMenu (props) {
   /* Render TopMenu component */
   return (
-    <Navbar>
+    <Navbar staticTop>
+      <Navbar.Header>
+        <Navbar.Brand>
+          SopplaWeb
+        </Navbar.Brand>
+      </Navbar.Header>
       <Nav pullRight>
         <ScenarioMenu
           onAction={(eventKey, param) => props.onMenuAction('scenario', eventKey, param)}
@@ -25,15 +30,15 @@ function TopMenu (props) {
           onAction={(eventKey, param) => props.onMenuAction('uavs', eventKey, param)}
         />
         <TargetMenu
-          scenarioID={props.scenario._id}      
+          scenarioID={props.scenario._id}
           onAction={(eventKey, param) => props.onMenuAction('targets', eventKey, param)}
         />
         <EnvMenu
-          scenarioID={props.scenario._id}          
+          scenarioID={props.scenario._id}
           onAction={(eventKey, param) => props.onMenuAction('environment', eventKey, param)}
         />
         <RequestMenu
-          scenarioID={props.scenario._id}          
+          scenarioID={props.scenario._id}
           onAction={(eventKey, param) => props.onMenuAction('request', eventKey, param)}
         />
       </Nav>

@@ -54,30 +54,26 @@ function addSensor (req, res) {
 		if (err) {
 			res.status(500).send({ message : 'Error while saving the sensor in the DB'});
 		} else {
-			if (!sensorStored) {
-				res.status(404).send({ message : 'Sensor does not exist in the DB'});
-			} else {
-				//add the new sensor to the given uav
-				UAV.findOneAndUpdate (
-					{'_id' : req.body.uavID},
-					{ $push : {
-						'sensor': sensorStored}
-					},
-					{new : true}).
-					populate('sensor', 'name _id').
-					exec(function (err, uav) {
-						if (err) {
-							res.status(500).send({ message : 'Error while adding the sensor to the UAV'});
+			//add the new sensor to the given uav
+			UAV.findOneAndUpdate (
+				{'_id' : req.body.uavID},
+				{ $push : {
+					'sensor': sensorStored}
+				},
+				{new : true}).
+				populate('sensor', 'name _id').
+				exec(function (err, uav) {
+					if (err) {
+						res.status(500).send({ message : 'Error while adding the sensor to the UAV'});
+					} else {
+						if (!uav) {
+							res.status(404).send({ message : 'UAV does not exist in the DB'});
 						} else {
-							if (!uav) {
-								res.status(404).send({ message : 'Error while updating the sensor in the DB'});
-							} else {
-								res.status(200).jsonp(uav.sensor);
-							}
+							res.status(200).jsonp(uav.sensor);
 						}
 					}
-				);
-			}
+				}
+			);
 		};
 	});
 };
@@ -89,13 +85,13 @@ function updateSensor (req, res) {
 	Sensor.findOneAndUpdate (
 		{'_id' : req.body._id},
 		{ $set : {
-      		name : req.body.name,
-    		type : req.body.type,
+      	name : req.body.name,
+    		type : config.sensorTypes[req.body.type],
     		controlAt : req.body.controlAt,
     		captureAt : req.body.captureAt,
     		initState : {
-    			elevation : req.body.elevation,
-    			azimuth   : req.body.azimuth
+    			elevation : req.body.initElevation,
+    			azimuth   : req.body.initAzimuth
     		}
 		}},
 		{new : true},
@@ -124,7 +120,7 @@ function deleteSensor (req, res) {
 			if (!sensor) {
 				res.status(404).send({ message : 'Sensor does not exist in the DB'});
 			} else {
-				//add the new sensor to the given uav
+				//remove the deleted sensor from the given UAV
 				UAV.findOneAndUpdate (
 					{'_id' :req.params.uavID},
 					{ $pull : {

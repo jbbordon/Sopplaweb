@@ -51,7 +51,7 @@ function getTarget (req, res) {
 	});
 };
 
-/* Create a new target in the DB */
+/* Create a new target in the DB
 function addTarget (req, res) {
 	console.log ('POST /targets/');
 	//read input data from http body request
@@ -65,7 +65,42 @@ function addTarget (req, res) {
 			res.status(200).send ({Target : targetStored});
 		}
 	});
-};
+};*/
+
+/* Create a new Target in the DB */
+function addTarget (req, res) {
+	console.log ('POST /targets');
+	//read input data from http body request
+	let myTarget = new Target();
+	myTarget.name = req.body.name;
+	// store the new Target in the DB
+	myTarget.save (function (err, targetStored) {
+		if (err) {
+			res.status(500).send({ message : 'Error while saving the target in the DB'});
+		} else {
+			//add the new target to the given scenario
+			Scenario.findOneAndUpdate (
+				{'_id' : req.body.scenarioID},
+				{ $push : {
+					'targets': targetStored}
+				},
+				{new : true}).
+				populate('targets', 'name _id').
+				exec(function (err, scenario) {
+					if (err) {
+						res.status(500).send({ message : 'Error while adding the target to the scenario'});
+					} else {
+						if (!scenario) {
+							res.status(404).send({ message : 'Scenario does not exist in the DB'});
+						} else {
+							res.status(200).jsonp(scenario.targets);
+						}
+					}
+				}
+			);
+		};
+	});
+}
 
 /* Add a motion model point to a target in the DB */
 function addTargetMotionModelPoint (req, res) {
@@ -265,30 +300,36 @@ function updateTargetBelief (req, res) {
 /* Delete a given target from the DB */
 function deleteTarget (req, res) {
 	console.log ('DELETE /targets/:targetID');
-	// delete the target from the DB
+	// delete the Target from the DB
 	Target.remove ({'_id' : req.params.targetID}, function (err, target) {
 		if (err) {
 			res.status(500).send({ message : 'Error while deleting the target in the DB'});
 		} else {
-			if (target.n == 0) {
+			if (!target) {
 				res.status(404).send({ message : 'Target does not exist in the DB'});
 			} else {
-				// now remove the target _id from every scenario with a reference to it
+				//remove the deleted target from the given scenario
 				Scenario.findOneAndUpdate (
-					null,
-					{ $pull :
-						{ targets : req.params.targetID }
+					{'_id' :req.params.scenarioID},
+					{ $pull : {
+						'targets': req.params.targetID}
 					},
-					{new : true},
-					function (err, scenario) {
+					{new : true}).
+					populate('targets', 'name _id').
+					exec(function (err, scenario) {
 						if (err) {
-							res.status(500).send({ message : 'Error while deleting the target from every Scenario'});
-						};
+							res.status(500).send({ message : 'Error while removing the Target from the scenario'});
+						} else {
+							if (!scenario) {
+								res.status(404).send({ message : 'Scenario does not exist in the DB'});
+							} else {
+								res.status(200).jsonp(scenario.targets);
+							}
+						}
 					}
 				);
-				res.status(200).send ({message : 'Target successfully deleted in the DB'});
-			};
-		};
+			}
+    	}
 	});
 };
 

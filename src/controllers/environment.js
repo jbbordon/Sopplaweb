@@ -1,264 +1,155 @@
 //File: controllers/environment.js
-const Environment = require ('../models/environment')
+const NFZ = require ('../models/nfz');
+const Scenario = require ('../models/scenario');
 
 /* environment methods */
 
-/* Return a list of environments stored in the DB*/
-function getEnvs (req, res) {
-	console.log ('GET /environment');
-	Environment.find(null, 'name _id', function(err, envs) {
-		if(err) {
-			res.status(500).send({ message : 'Error while retrieving the environments list'});
-		 } else {
-		    if(!envs) {
-		    	res.status(404).send({ message : 'Error there are no environments stored in the DB'});
+/* Return a NFZ from the DB */
+function getEnvNFZ (req, res) {
+	console.log ('GET /environment/nfz/:nfzID');
+	NFZ.findById(req.params.nfzID, function(err, nfz) {
+	    if (err) {
+	    	res.status(500).send({ message : 'Error while retrieving the NFZ from the DB'});
+	    } else {
+		    if (!nfz) {
+		    	res.status(404).send({ message : 'NFZ does not exist in the DB'});
 		    } else {
-				res.status(200).jsonp(envs);
-		    }
-		 }
-	});
-};
-
-/* Find a environment in the DB */
-function getEnv (req, res) {
-	console.log ('GET /environment/:environmentID');
-	Environment.findById(req.params.environmentID, function(err, environment) {
-	    if (err) {
-	    	res.status(500).send({ message : 'Error while retrieving the environment from the DB'});
-	    } else {
-	    	if (!environment) {
-	    		res.status(404).send({ message : 'Environment does not exist in the DB'});
-	    	} else {
-	    		res.status(200).jsonp(environment);
-	    	}
-	    }
-	});
-};
-
-/* Create a new environment in the DB */
-function addEnv (req, res) {
-	console.log ('POST /environment');
-	//read input data from http body request
-	let myEnv = new Environment();
-	myEnv.name = req.body.name;
-	// add the new Target in the DB
-	myEnv.save(function (err, envStored) {
-		if (err) {
-			res.status(500).send({ message : 'Error while saving the Environment in the DB'});
-		} else {
-			res.status(200).send ({Environment : envStored});
-		}
-	});
-};
-
-/* Add a NFZ to an existing environment in the DB */
-function addNFZ (req, res) {
-	console.log ('POST /environment/nfz');
-	//search the ENV in the DB
-	Environment.findById(req.body.environmentID, function(err, environment) {
-	    if (err) {
-	    	res.status(500).send({ message : 'Error while retrieving the environment from the DB'});
-	    } else {
-	    	if (!environment) {
-	    		res.status(404).send({ message : 'Environment does not exist in the DB'});
-	    	} else {
-	    		// read the input data
-	    		let myNFZ = {
-					latitude     : req.body.latitude,
-					longitude    : req.body.longitude,
-					xWidth      : req.body.xWidth,
-					yHeight     : req.body.yHeight,
-					areaBearing : req.body.areaBearing,
-	    		}
-	    		environment.nfzs.push (myNFZ);
-	    		// save the data
-	    		environment.save (function (err, environmentSaved) {
-					if (err) {
-						res.status(500).send({ message : 'Error while saving the environment in the DB'});
-					} else {
-						res.status(200).send ({Environment : environmentSaved});
-					}
-	    		});
-	    	}
-	    }
-	});
-};
-
-/* Add wind to an existing environment in the DB */
-function addWind (req, res) {
-	console.log ('POST /environment/wind');
-	//search the ENV in the DB
-	Environment.findById(req.body.environmentID, function(err, environment) {
-	    if (err) {
-	    	res.status(500).send({ message : 'Error while retrieving the environment from the DB'});
-	    } else {
-	    	if (!environment) {
-	    		res.status(404).send({ message : 'Environment does not exist in the DB'});
-	    	} else {
-	    		// read the input data
-	    		let myWind = {
-					speed     : req.body.speed,
-					direction : req.body.direction
-	    		}
-	    		environment.wind = myWind;
-	    		// save the data
-	    		environment.save (function (err, environmentSaved) {
-					if (err) {
-						res.status(500).send({ message : 'Error while saving the environment in the DB'});
-					} else {
-						res.status(200).send ({Environment : environmentSaved});
-					};
-	    		});
-	    	};
-	    };
+		    	res.status(200).jsonp(nfz);
+		    };
+		};
 	});
 };
 
 /* Update a NFZ from a given environment */
-function updateNFZ (req, res) {
+function updateEnvNFZ (req, res) {
 	console.log ('PUT /environment/nfz');
-	// search for the ENV in the DB
-	Environment.findById(req.body.environmentID, function(err, environment) {
-	    if (err) {
-	    	res.status(500).send({ message : 'Error while searching the environment in the DB'});
-	    } else {
-		    if (!environment) {
-		    	res.status(404).send({ message : 'Environment does not exist in the DB'});
-		    } else {
-		    	// retrieve the new nfz data
-		    	let myNFZ = {
-					latitude     : req.body.latitude,
-					longitude    : req.body.longitude,
-					xWidth      : req.body.xWidth,
-					yHeight     : req.body.yHeight,
-					areaBearing : req.body.areaBearing,
-		    	};
-				// update environment nfzs array
-				environment.nfzs[req.body.nfzPos] = myNFZ;
-				// save the environment in the DB
-				environment.save (function (err, environmentSaved) {
-					if (err) {
-						res.status(500).send({ message : 'Error while saving the environment in the DB'});
-					} else {
-						res.status(200).send ({Environment : environmentSaved});
-					};
-				});
-		    };
-		};
-	});
-};
-
-/* Update the wind from a given environment */
-function updateWind (req, res) {
-	console.log ('PUT /environment/wind');
-	// search for the ENV in the DB
-	Environment.findById(req.body.environmentID, function(err, environment) {
-	    if (err) {
-	    	res.status(500).send({ message : 'Error while searching the environment in the DB'});
-	    } else {
-		    if (!environment) {
-		    	res.status(404).send({ message : 'Environment does not exist in the DB'});
-		    } else {
-		    	// retrieve the new wind data
-	    		let myWind = {
-					speed     : req.body.speed,
-					direction : req.body.direction
-	    		}
-	    		environment.wind = myWind;
-				// save the environment in the DB
-				environment.save (function (err, environmentSaved) {
-					if (err) {
-						res.status(500).send({ message : 'Error while saving the environment in the DB'});
-					} else {
-						res.status(200).send ({Environment : environmentSaved});
-					};
-				});
-		    };
-		};
-	});
-};
-
-/* Delete a given environment from the DB */
-function deleteEnv (req, res) {
-	console.log ('DELETE /environment/:environmentID');
-	// delete the target from the DB
-	Environment.remove ({'_id' : req.params.environmentID}, function (err, environment) {
-		if (err) {
-			res.status(500).send({ message : 'Error while deleting the environment in the DB'});
-		} else {
-			if (!environment) {
-				res.status(404).send({ message : 'Environment does not exist in the DB'});
+	// seach the DB for the nfz and update it
+	NFZ.findOneAndUpdate (
+		{'_id' : req.body._id},
+		{ $set : {
+			latitude  : req.body.latitude,
+			longitude : req.body.longitude,
+			xWidth    : req.body.xWidth,
+			yHeight   : req.body.yHeight,
+			bearing   : req.body.bearing
+		}},
+		{new : true},
+		function (err, nfzUpdated) {
+			if (err) {
+				res.status(500).send({ message : 'Error while updating the nfz in the DB'});
 			} else {
-				res.status(200).send ({message : 'Environment successfully deleted in the DB'});
+				if (!nfzUpdated) {
+					res.status(404).send({ message : 'NFZ does not exist in the DB'});
+				} else {
+					res.status(200).jsonp(nfzUpdated);
+				};
 			};
+		}
+	);
+}
+
+/* Add a NFZ to an existing environment in the DB */
+function addEnvNFZ (req, res) {
+	console.log ('POST /environment/nfz');
+	//read input data from http body request
+	let myNFZ = new NFZ();
+	// store the new NFZ in the DB
+	myNFZ.save (function (err, nfzStored) {
+		if (err) {
+			res.status(500).send({ message : 'Error while saving the NFZ in the DB'});
+		} else {
+			//add the new nfz to the given uav
+			Scenario.findOneAndUpdate (
+				{'_id' : req.body.scenarioID},
+				{ $push : {
+					'environment.nfzs': nfzStored }
+				},
+				{new : true}).
+				exec(function (err, scenario) {
+					if (err) {
+						res.status(500).send({ message : 'Error while adding the NFZ to the scenario'});
+					} else {
+						if (!scenario) {
+							res.status(404).send({ message : 'Scenario does not exist in the DB'});
+						} else {
+							res.status(200).jsonp(scenario.environment.nfzs);
+						}
+					}
+				}
+			);
 		};
 	});
+};
+
+/* Update wind environment from a given scenario */
+function updateEnvWind (req, res) {
+	console.log ('PUT /environment/wind');
+	// seach the DB for the Scenario and update it
+	Scenario.findOneAndUpdate (
+		{'_id' : req.body._id},
+		{ $set : {
+			environment : {
+				wind : {
+					speed : req.body.speed,
+					direction : req.body.direction
+				}
+			}
+		}},
+		{new : true},
+		function (err, scenarioUpdated) {
+			if (err) {
+				res.status(500).send({ message : 'Error while updating the scenario in the DB'});
+			} else {
+				if (!scenarioUpdated) {
+					res.status(404).send({ message : 'Scenario does not exist in the DB'});
+				} else {
+					res.status(200).send({ message : 'O'});
+				}
+			}
+		}
+	);
 };
 
 /* Delete a NFZ from an existing environment */
-function deleteNFZ (req, res) {
-	console.log ('DELETE /environment/:environmentID/nfz/:nfzPos');
-	// search for the environment in the DB
-	Environment.findById(req.params.environmentID, function(err, environment) {
-	    if (err) {
-	    	res.status(500).send({ message : 'Error while searching the environment in the DB'});
-	    } else {
-		    if (!environment) {
-		    	res.status(404).send({ message : 'Environment does not exist in the DB'});
-		    } else {
-				// update environment nfzs array
-				for (var i = req.body.nfzPos; i < environment.nfzs.length; i++) {
-					environment.nfzs[i] = environment.nfzs[i+1];
-				}
-				// save the environment in the DB
-				environment.save (function (err, environmentSaved) {
-					if (err) {
-						res.status(500).send({ message : 'Error while saving the environment in the DB'});
-					} else {
-						res.status(200).send ({Environment : environmentSaved});
-					};
-				});
-		    };
-		};
-	});
-};
-
-/* Delete the wind from an existing environment */
-function deleteWind (req, res) {
-	console.log ('DELETE /environment/:environmentID/wind');
-	// search for the environment in the DB
-	Environment.findById(req.params.environmentID, function(err, environment) {
-	    if (err) {
-	    	res.status(500).send({ message : 'Error while searching the environment in the DB'});
-	    } else {
-		    if (!environment) {
-		    	res.status(404).send({ message : 'Environment does not exist in the DB'});
-		    } else {
-				// delete environment wind
-				environment.wind = null;
-				// save the environment in the DB
-				environment.save (function (err, environmentSaved) {
-					if (err) {
-						res.status(500).send({ message : 'Error while saving the environment in the DB'});
-					} else {
-						res.status(200).send ({Environment : environmentSaved});
-					};
-				});
-		    };
-		};
+function deleteEnvNFZ (req, res) {
+	console.log ('DELETE /environment/:scenarioID/nfzs/:nfzID');
+	// delete the NFZ from the DB
+	NFZ.remove ({'_id' : req.params.nfzID}, function (err, nfz) {
+		if (err) {
+			res.status(500).send({ message : 'Error while deleting the NFZ in the DB'});
+		} else {
+			if (!nfz) {
+				res.status(404).send({ message : 'NFZ does not exist in the DB'});
+			} else {
+				//remove the deleted sensor from the given UAV
+				Scenario.findOneAndUpdate (
+					{'_id' :req.params.scenarioID},
+					{ $pull : {
+						'environment.nfzs': req.params.nfzID}
+					},
+					{new : true}).
+					exec(function (err, scenario) {
+						if (err) {
+							res.status(500).send({ message : 'Error while deleting the NFZ of the scenario'});
+						} else {
+							if (!scenario) {
+								res.status(404).send({ message : 'Scenario does not exist in the DB'});
+							} else {
+								res.status(200).jsonp(scenario.environment.nfzs);
+							}
+						}
+					}
+				);
+			}
+    	}
 	});
 };
 
 /* environment methods export */
 module.exports = {
-	getEnvs,
-	getEnv,
-	addEnv,
-	addNFZ,
-	addWind,
-	updateNFZ,
-	updateWind,
-	deleteEnv,
-	deleteNFZ,
-	deleteWind
+	getEnvNFZ,
+	addEnvNFZ,
+	updateEnvNFZ,
+	updateEnvWind,
+	deleteEnvNFZ
 };

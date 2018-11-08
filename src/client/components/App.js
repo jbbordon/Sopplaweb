@@ -19,9 +19,20 @@ class App extends Component {
       scenario : {
         _id : "",
         name : "Default",
+        zone : "",
         uavs : [],
         targets : [],
-        environment : ""
+        environment : {
+          wind : "",
+          nfzs : []
+        },
+        request : {
+          merit : {
+            constraints : [],
+      			paretos     : [],
+      			sorting     : []
+          }
+        }
       }
     }
     //binding of methods
@@ -49,7 +60,10 @@ class App extends Component {
         zone : "",
         uavs : [],
         targets : [],
-        environment : ""
+        environment : {
+          wind : "",
+          nfzs : []
+        }
       }
     });
   }
@@ -97,9 +111,6 @@ class App extends Component {
 
   /* Handles Target menu */
   handleTargetMenu (eventKey, param) {
-    let newScenario = Object.assign({}, this.state.scenario);
-    newScenario.targets = param;
-    this.setState({scenario : newScenario});
   }
 
   /* Handles Environment menu */

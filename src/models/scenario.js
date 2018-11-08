@@ -21,10 +21,33 @@ const ScenarioSchema = new Schema ({
 		{ type: mongoose.Schema.Types.ObjectId, ref: 'UAV' }
 	],
 	environment : {
-		type: mongoose.Schema.Types.ObjectId, ref: 'Environment'
+		wind : {
+			speed     : Number, // m/s
+			direction : { type: Number, min: 0, max: 360 }
+		},		
+		nfzs : [
+			{ type: mongoose.Schema.Types.ObjectId, ref: 'NFZ' }
+		]
 	},
 	request : {
-		type: mongoose.Schema.Types.ObjectId, ref: 'Request'
+		merit    : {
+			constraints : [ Number ],
+			paretos     : [ Number ],
+			sorting     : [ Number ]
+		},		
+		algorithms : [ // array from 1 to n
+			{ type: mongoose.Schema.Types.ObjectId, ref: 'Algorithm' }
+		],
+		control : {
+			variables : [Boolean],
+			type : [Number],
+			limits : [
+				{
+					min: Number,
+					max: Number
+				}
+			]
+		}
 	}
 },
 { minimize: false });

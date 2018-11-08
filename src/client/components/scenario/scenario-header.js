@@ -1,14 +1,15 @@
 /* Modules import */
 import React, { Component } from 'react';
+/* Bootstrap components import */
+import { Panel } from 'react-bootstrap';
 /* Styles import */
 import '../../style/scenario.css';
 
 function ScenarioHeader (props) {
   return (
-    <div id="header">
-      <h3> SopplaWeb </h3>
+    <Panel.Heading>
       <h4> Scenario : {props.scenarioName} </h4>
-    </div>
+    </Panel.Heading>
   );
 }
 
