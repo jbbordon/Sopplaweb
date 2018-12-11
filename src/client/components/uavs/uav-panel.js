@@ -83,11 +83,7 @@ class UavPanel extends Component {
         .then(data => {
           let newState = this.resetState();
           // check if UAV is defined or only has been created
-          if (!data.type) {
-            // if uav is not yet defined only set _id & name
-            newState._id = data._id;
-            newState.name = data.name;
-          } else {
+          if (data.hasOwnProperty('type')) {
             CesiumUavs.paintUAV(data);
             // set the form fields to the values loaded
             newState = {
@@ -110,6 +106,10 @@ class UavPanel extends Component {
               finalSpeed : data.finalState.speed,
               flightTime : data.flightTime
             };
+          } else {
+            // if uav is not yet defined only set _id & name
+            newState._id = data._id;
+            newState.name = data.name;
           }
           this.setState(newState);
         })

@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 /* Bootstrap components import */
 import { Panel, PanelGroup } from 'react-bootstrap';
 /* Components import */
-import WindForm from './wind-form.js';
+import WindPanel from './wind-panel.js';
 import NfzPanelGroup from './nfz-panel-group.js';
 /* Styles import */
 import '../../style/environment.css';
@@ -19,12 +19,12 @@ function EnvPanel (props) {
       </Panel.Heading>
       <Panel.Collapse>
         <Panel.Body>
-          <WindForm
-            className="windPanel"
-            scenarioID={props.scenarioID}
-            wind={props.wind}
-          />
           <PanelGroup>
+            <WindPanel
+              className="windPanel"
+              scenarioID={props.scenarioID}
+              wind={props.wind}
+              />
             <NfzPanelGroup
               key={props.scenarioID}
               scenarioID={props.scenarioID}

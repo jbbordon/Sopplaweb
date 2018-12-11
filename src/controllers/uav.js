@@ -68,7 +68,7 @@ function getUAVSensors (req, res) {
 	});
 };
 
-/* Create a new UAV in the DB 
+/* Create a new UAV in the DB
 function addUAV (req, res) {
 	console.log ('POST /uavs');
 	//read input data from http body request
@@ -127,9 +127,9 @@ function updateUAV (req, res) {
 		{'_id' : req.body._id},
 		{ $set : {
 			name: req.body.name,
-			type: config.uavTypes[req.body.type],
+			type: req.body.type,
 			motionModel : {
-				type : config.uavMotionModels[req.body.modelType],
+				type : req.body.modelType,
 				at   : req.body.modelAt
 			},
 			initTime : req.body.initTime,

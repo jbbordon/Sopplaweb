@@ -1,14 +1,13 @@
 
-const config   = require('./config');
 const mongoose = require('mongoose');
 const Schema   = mongoose.Schema;
 
 // UAV Schema definition
 const UAVSchema = new Schema ({
 	name : { type: String, index: { unique: true, dropDups: true } },
-	type : { type: String, enum: config.uavTypes }, // UAV type: atlante, neuron...
+	type : { type: Number, min: 0 }, // UAV type: atlante, neuron...
 	motionModel : {
-		type : { type: String, enum: config.uavMotionModels }, // UAV motion model ej: jsbsim, runge_kutta...
+		type : { type: Number, min: 0 }, // UAV motion model ej: jsbsim, runge_kutta...
 		at : Number	// control signal time
 	},
 	sensor : [ // array from 1 to n sensors

@@ -1,8 +1,5 @@
 #cesiumContainer {
-  position: fixed;
-  width: 75%;
+  height: 100%;  
   margin-left: 25%;
-  z-index: 1; /* Stay on top */
-  top: 0; /* Stay at the top */
-  overflow: hidden;
+  padding-left: 10px;
 }

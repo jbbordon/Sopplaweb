@@ -86,7 +86,7 @@ function updateSensor (req, res) {
 		{'_id' : req.body._id},
 		{ $set : {
       	name : req.body.name,
-    		type : config.sensorTypes[req.body.type],
+    		type : req.body.type,
     		controlAt : req.body.controlAt,
     		captureAt : req.body.captureAt,
     		initState : {

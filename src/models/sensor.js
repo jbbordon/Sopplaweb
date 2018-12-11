@@ -1,11 +1,11 @@
-const config   = require('./config');
+
 const mongoose = require('mongoose');
 const Schema   = mongoose.Schema;
 
 // Sensor Schema definition
 const SensorSchema = new Schema ({
 	name :  String,
-	type : { type: String, enum: config.uavSensors },  // sensor type ej: radar, óptico, ir...
+	type : { type: Number, min: 0 },  // sensor type ej: radar, óptico, ir...
 	controlAt : Number, // control signal time
 	captureAt : Number,  // capture signal time
 	initState : {

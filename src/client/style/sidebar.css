@@ -1,9 +1,11 @@
 .sidebar {
-    width: 25%; /* Set the width of the sidebar */
-    position: static; /* Fixed Sidebar (stay in place on scroll) */
-    z-index: 1; /* Stay on top */
-    top: 3%; /* Stay at the top */
-    left: 0;
-    overflow-x: hidden; /* Disable horizontal scroll */
-    padding-top: 20px;
+  height: 100%;
+  margin-top: 3%;
+  width: 25%;
+  padding-left: 10px;  
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  overflow-x: hidden;
 }

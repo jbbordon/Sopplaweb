@@ -57,11 +57,7 @@ class SensorPanel extends Component {
       .then(data => {
         let newState = this.resetState();
         // check if Sensor is defined or only has been created
-        if (!data.type) {
-          // if sensor is not yet defined only set _id & name
-          newState._id = data._id;
-          newState.name = data.name;
-        } else {
+        if (data.hasOwnProperty('type')) {
           // set the form fields to the values loaded
           newState = {
             _id : data._id,
@@ -72,6 +68,10 @@ class SensorPanel extends Component {
             initElevation : data.initState.elevation,
             initAzimuth : data.initState.azimuth,
           };
+        } else {
+          // if sensor is not yet defined only set _id & name
+          newState._id = data._id;
+          newState.name = data.name;
         }
         this.setState(newState);
       })

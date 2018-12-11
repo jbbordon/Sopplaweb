@@ -107,7 +107,6 @@ class SideBar extends Component {
                 <UavPanelGroup
                   key={this.props.scenario._id}
                   scenarioID={this.props.scenario._id}
-                  onAction={(eventKey, param)=>this.this.props.onComponentAction('uavs', eventKey, param)}
                 />
               </SensorTypesContext.Provider>
             </UavModelsContext.Provider>

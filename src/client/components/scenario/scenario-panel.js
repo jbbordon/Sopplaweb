@@ -51,6 +51,7 @@ class ScenarioPanel extends Component {
       let newState = this.resetForm();
       // check if the scenario area is already defined or not
       if (this.props.scenarioZone.latitude) {
+        CesiumScenario.paintZone(this.props.scenarioZone, this.props.scenarioName);
         // area is defined for current scenario so set the form fields
         newState = {
           latitude : this.props.scenarioZone.latitude,

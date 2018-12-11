@@ -9,7 +9,7 @@ import { faSave } from '@fortawesome/free-solid-svg-icons';
 /* Styles import */
 import '../../style/environment.css';
 
-class WindForm extends Component {
+class WindPanel extends Component {
 
   constructor (props) {
     super(props);
@@ -24,7 +24,7 @@ class WindForm extends Component {
     this.handleSave = this.handleSave.bind(this);
   }
 
-  /* reset scenario-form to default data */
+  /* reset wind panel form to default data */
   resetForm () {
     return {
       speed : '',
@@ -37,9 +37,9 @@ class WindForm extends Component {
     if (this.props !== prevProps) {
       // reset the form fields
       let newState = this.resetForm();
-      // check if the scenario area is already defined or not
+      // check if the wind is already defined or not
       if (this.props.wind.speed) {
-        // area is defined for current scenario so set the form fields
+        // wind is defined for current scenario so set the form fields
         newState = {
           speed : this.props.wind.speed,
           direction : this.props.wind.direction,
@@ -127,4 +127,4 @@ class WindForm extends Component {
   }
 }
 
-export default WindForm;
+export default WindPanel;
